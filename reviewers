@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EST Review - Full Compilation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --rose-light: #fff5f6;
+            --rose-muted: #f9e8ea;
+            --rose-primary: #e4a0a7;
+            --rose-dark: #8c5e63;
+            --mint-correct: #ecfdf5;
+            --mint-border: #10b981;
+            --blush-incorrect: #fff1f2;
+            --blush-border: #fb7185;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #fcf8f8;
+            color: #5a4a4b;
+        }
+        
+        .serif-title {
+            font-family: "Georgia", serif;
+        }
+
+        .choice-btn {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            border-width: 1.5px;
+        }
+        
+        .choice-btn:disabled {
+            cursor: default;
+        }
+
+        .choice-btn.correct {
+            background-color: var(--mint-correct) !important;
+            border-color: var(--mint-border) !important;
+            color: #065f46 !important;
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.1);
+        }
+
+        .choice-btn.incorrect {
+            background-color: var(--blush-incorrect) !important;
+            border-color: var(--blush-border) !important;
+            color: #9f1239 !important;
+        }
+
+        .progress-bar-fill {
+            transition: width 0.6s cubic-bezier(0.65, 0, 0.35, 1);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--rose-light); }
+        ::-webkit-scrollbar-thumb { background: var(--rose-primary); border-radius: 10px; }
+    </style>
+</head>
+<body class="min-h-screen py-6 md:py-12 px-4">
+    <div id="app" class="max-w-2xl mx-auto bg-white rounded-[2rem] shadow-xl shadow-rose-100/50 border border-rose-100 overflow-hidden">
+        
+        <!-- Header Section -->
+        <div class="bg-gradient-to-b from-[#fdf2f3] to-white p-8 text-center border-b border-rose-50 relative">
+            <h1 class="serif-title text-3xl font-bold text-[#8c5e63] tracking-tight">EST Review</h1>
+            <p id="subject-label" class="text-[10px] font-bold uppercase tracking-[0.2em] mt-2 text-rose-400">SELECT A MODULE</p>
+            
+            <div id="quiz-stats" class="mt-6 flex justify-between items-center text-[11px] font-bold uppercase tracking-wider text-rose-800/60 hidden">
+                <span id="progress-text">Question 1</span>
+                <span id="score-text">Score: 0 / 0</span>
+            </div>
+            
+            <div id="progress-container" class="w-full bg-rose-100/50 rounded-full h-1.5 mt-3 hidden overflow-hidden">
+                <div id="progress-bar" class="progress-bar-fill bg-[#e4a0a7] h-full" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <!-- Mode Selection -->
+        <div id="mode-selection" class="p-10 text-center">
+            <h2 class="text-lg font-medium mb-8 text-rose-900/40 italic">Choose your focus area</h2>
+            <div class="space-y-4 max-w-sm mx-auto">
+                <button onclick="startQuiz('principles')" class="w-full bg-white border-2 border-rose-100 text-[#8c5e63] font-bold py-5 rounded-2xl hover:border-rose-300 hover:bg-rose-50 transition-all shadow-sm">
+                    Principles of Communications
+                </button>
+                <button onclick="startQuiz('data')" class="w-full bg-white border-2 border-rose-100 text-[#8c5e63] font-bold py-5 rounded-2xl hover:border-rose-300 hover:bg-rose-50 transition-all shadow-sm">
+                    Data Communications
+                </button>
+                <button onclick="startQuiz('digital')" class="w-full bg-white border-2 border-rose-100 text-[#8c5e63] font-bold py-5 rounded-2xl hover:border-rose-300 hover:bg-rose-50 transition-all shadow-sm">
+                    Digital Communications
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Quiz Interface -->
+        <div id="quiz-container" class="p-6 md:p-10 hidden">
+            <button onclick="location.reload()" class="mb-6 flex items-center text-[10px] font-bold text-rose-300 hover:text-rose-500 transition-colors uppercase tracking-widest">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Switch Subject
+            </button>
+
+            <div id="question-area">
+                <h2 id="question-text" class="text-xl font-semibold mb-10 leading-relaxed text-rose-900/80 text-center"></h2>
+                <div id="choices-grid" class="space-y-3"></div>
+            </div>
+
+            <div id="feedback-area" class="mt-8 hidden fade-in">
+                <div id="explanation-container" class="bg-rose-50/50 p-6 rounded-2xl border border-rose-100 mb-6">
+                    <p id="feedback-status" class="font-bold text-sm uppercase tracking-widest mb-2"></p>
+                    <p id="explanation-text" class="text-rose-900/60 text-sm leading-relaxed"></p>
+                </div>
+                <button id="next-btn" class="w-full bg-[#e4a0a7] hover:bg-[#d88d94] text-white font-bold py-4 rounded-2xl transition-all shadow-lg shadow-rose-200 text-lg">
+                    Next Question
+                </button>
+            </div>
+        </div>
+
+        <!-- Final Results -->
+        <div id="results-screen" class="p-12 hidden text-center">
+            <div class="w-20 h-20 bg-rose-50 rounded-full flex items-center justify-center mx-auto mb-6 text-rose-300">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <h2 class="text-2xl font-bold text-rose-900/70">Session Complete</h2>
+            <div id="final-score" class="text-6xl font-serif text-[#e4a0a7] my-8">0 / 0</div>
+            <div class="space-y-3 max-w-xs mx-auto">
+                <button id="view-mistakes-btn" class="w-full bg-white border border-rose-100 text-rose-400 font-bold py-3 rounded-xl hover:bg-rose-50 transition-colors">Review Errors</button>
+                <button onclick="location.reload()" class="w-full bg-rose-100/50 text-rose-700 font-bold py-3 rounded-xl hover:bg-rose-100 transition-colors">Back to Start</button>
+            </div>
+        </div>
+
+        <!-- Error Review List -->
+        <div id="mistakes-screen" class="p-8 hidden max-h-[70vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-8 sticky top-0 bg-white py-2 z-10 border-b border-rose-50">
+                <h2 class="text-xl font-bold text-rose-900/60">Reviewing Errors</h2>
+                <button onclick="showResults(true)" class="text-xs font-bold text-rose-300 hover:text-rose-500">Close</button>
+            </div>
+            <div id="mistakes-list" class="space-y-6"></div>
+        </div>
+    </div>
+
+    <script>
+        // DATA COMMUNICATIONS (70 QUESTIONS)
+        const dataCommRaw = [
+            { q: "Which characteristic refers to the variation in the packet arrival time?", a: ["Delivery", "Accuracy", "Timeliness", "Jitter"], correct: 3, e: "Jitter is the difference in packet delay." },
+            { q: "What is the primary objective of Data Communications?", a: ["High speed", "Interoperability", "Data Encryption", "Network Security"], correct: 1, e: "Interoperability allows different systems to work together." },
+            { q: "Which part of a protocol refers to the structure or format of the data?", a: ["Semantics", "Syntax", "Timing", "Encoding"], correct: 1, e: "Syntax refers to the physical structure of bits." },
+            { q: "In which transmission mode can both stations transmit and receive simultaneously?", a: ["Simplex", "Half-Duplex", "Full-Duplex", "Automatic Mode"], correct: 2, e: "Full-Duplex allows two-way simultaneous communication." },
+            { q: "A monitor or a keyboard is an example of which transmission mode?", a: ["Simplex", "Half-Duplex", "Full-Duplex", "Point-to-Multipoint"], correct: 0, e: "Simplex is one-way communication." },
+            { q: "In a n-node mesh topology, how many physical links are required?", a: ["n", "n - 1", "n(n-1) / 2", "n^2"], correct: 2, e: "The formula for a full mesh is n(n-1)/2." },
+            { q: "Which topology features a central controller or hub?", a: ["Mesh", "Star", "Bus", "Ring"], correct: 1, e: "Star topologies connect all nodes to a hub." },
+            { q: "Which network type spans a city or a large campus?", a: ["LAN", "MAN", "WAN", "PAN"], correct: 1, e: "MAN stands for Metropolitan Area Network." },
+            { q: "Which device is used to connect two or more LANs, typically at the Data Link layer?", a: ["Repeater", "Hub", "Bridge", "Gateway"], correct: 2, e: "Bridges work at Layer 2." },
+            { q: "Standard 802.11 refers to which technology?", a: ["Ethernet", "Bluetooth", "Wi-Fi", "Token Ring"], correct: 2, e: "802.11 is the IEEE Wi-Fi standard." },
+            { q: "In FDM, what is used to prevent signals from overlapping or interfering?", a: ["Clock pulses", "Guard bands", "Start bits", "Sync characters"], correct: 1, e: "Guard bands are frequency gaps between channels." },
+            { q: "In Synchronous TDM, what happens if a device has no data to send?", a: ["Its slot is skipped", "Its slot remains empty/idle", "The next device takes the slot", "The frame is shortened"], correct: 1, e: "Sync TDM uses fixed time slots." },
+            { q: "Which switching technique treats each packet independently (Datagram)?", a: ["Circuit Switching", "Message Switching", "Packet Switching", "Hybrid Switching"], correct: 2, e: "Packet switching routes chunks independently." },
+            { q: "In Circuit Switching, when is the connection established?", a: ["On a packet-by-packet basis", "Before data transfer begins", "During data transfer", "After data transfer"], correct: 1, e: "Circuit switching requires a dedicated setup phase." },
+            { q: "The 'meaning' of each section of bits is defined by:", a: ["Syntax", "Semantics", "Timing", "Flow Control"], correct: 1, e: "Semantics defines what the bit sequence means." },
+            { q: "Which network criteria is measured in terms of delay and throughput?", a: ["Reliability", "Security", "Performance", "Efficiency"], correct: 2, e: "Performance is about speed and responsiveness." },
+            { q: "Which standard is 'Legislated' by an official body?", a: ["De Facto", "De Jure", "Proprietary", "Ad Hoc"], correct: 1, e: "De Jure means 'by law' or official regulation." },
+            { q: "A Multi-point configuration means:", a: ["One link for two devices", "More than two devices share a link", "One device with multiple hubs", "Wireless only"], correct: 1, e: "Multiple devices sharing a single link." },
+            { q: "Which topology is easiest to install but a single break in the main cable stops all transmission?", a: ["Star", "Mesh", "Bus", "Ring"], correct: 2, e: "A Bus topology uses a single backbone cable." },
+            { q: "The term 'Interoperability' refers to:", a: ["Fast data transfer", "Ability of computers to understand others", "Automatic data backup", "Encryption of data"], correct: 1, e: "Interoperability is cross-system communication." },
+            { q: "Which is a disadvantage of digital communications?", a: ["Noise immunity", "Large bandwidth required", "Easy to encode", "Performance monitorability"], correct: 1, e: "Digital signals generally require higher bandwidth." },
+            { q: "In asynchronous serial transmission, what is used to signal the end of a byte?", a: ["Start bit", "Guard band", "Stop bit", "SYN character"], correct: 2, e: "Stop bits terminate the data frame." },
+            { q: "The OSI model was created by which organization?", a: ["IEEE", "ISO", "ITU-T", "ANSI"], correct: 1, e: "International Organization for Standardization." },
+            { q: "Which device operates at the Physical layer to regenerate weak signals?", a: ["Bridge", "Repeater", "Router", "Switch"], correct: 1, e: "Repeaters regenerate electrical signals." },
+            { q: "ISDN stands for:", a: ["Internal System Digital Network", "Integrated Services Digital Network", "International Standard Data Network", "Instant Signal Data Network"], correct: 1, e: "Integrated Services Digital Network." },
+            { q: "The 'B' channel in ISDN typically carries data at what speed?", a: ["16 Kbps", "64 Kbps", "128 Kbps", "1.544 Mbps"], correct: 1, e: "The Bearer (B) channel is 64 Kbps." },
+            { q: "Which protocol is primarily used for electronic mail?", a: ["HTTP", "FTP", "SMTP", "PPP"], correct: 2, e: "Simple Mail Transfer Protocol." },
+            { q: "In a Ring topology, a signal is passed from device to device until it reaches its destination using a:", a: ["Token", "Hub", "Guard band", "Bus master"], correct: 0, e: "Token passing manages ring access." },
+            { q: "A Bluetooth network is often classified as a:", a: ["LAN", "MAN", "WAN", "PAN"], correct: 3, e: "Personal Area Network." },
+            { q: "Which switching method is commonly used in the public telephone network?", a: ["Packet Switching", "Circuit Switching", "Message Switching", "Frame Relay"], correct: 1, e: "PSTN is traditionally circuit-switched." },
+            { q: "Timing in protocols covers:", a: ["Data format", "Error detection", "When and how fast data is sent", "The route of the packet"], correct: 2, e: "Timing governs transmission speed/pacing." },
+            { q: "The actual path over which a message travels is the:", a: ["Protocol", "Medium", "Interface", "Gateway"], correct: 1, e: "The Medium is the physical channel." },
+            { q: "CDM stands for:", a: ["Circuit Division Multiplexing", "Code Division Multiplexing", "Channel Division Multiplexing", "Centralized Data Management"], correct: 1, e: "Code Division Multiplexing." },
+            { q: "Which is a characteristic of Packet Switching?", a: ["Connection is always there", "Switching is on a packet-by-packet basis", "Requires a dedicated physical path", "Used exclusively for analog voice"], correct: 1, e: "Packets are routed dynamically." },
+            { q: "Which connector is commonly used for Ethernet (UTP cable)?", a: ["RJ-11", "RJ-45", "BNC", "DB-9"], correct: 1, e: "RJ-45 is the standard Ethernet jack." },
+            { q: "Standard 802.3 refers to:", a: ["Wi-Fi", "Token Ring", "Ethernet", "Bluetooth"], correct: 2, e: "802.3 is IEEE Ethernet." },
+            { q: "Which device can connect two different types of networks and translate protocols?", a: ["Hub", "Switch", "Gateway", "Repeater"], correct: 2, e: "Gateways handle protocol translation." },
+            { q: "The maximum data rate of a T1 line is:", a: ["64 Kbps", "1.544 Mbps", "2.048 Mbps", "10 Mbps"], correct: 1, e: "T1 lines operate at 1.544 Mbps." },
+            { q: "Which type of transmission sends multiple bits simultaneously over multiple wires?", a: ["Serial", "Parallel", "Asynchronous", "Synchronous"], correct: 1, e: "Parallel transmission is multi-bit simultaneous." },
+            { q: "Which is an advantage of a Mesh topology?", a: ["Low cost", "Simple cabling", "Privacy and Security", "Easy installation"], correct: 2, e: "Dedicated links provide security/privacy." },
+            { q: "In TDM, if multiple signals share one link, they are separated by:", a: ["Frequency", "Wavelength", "Time slots", "Codes"], correct: 2, e: "Time Division Multiplexing." },
+            { q: "Which protocol is used for secure web browsing?", a: ["HTTP", "HTTPS", "FTP", "Telnet"], correct: 1, e: "HTTPS is Secure HTTP." },
+            { q: "A walkie-talkie is an example of:", a: ["Simplex", "Half-Duplex", "Full-Duplex", "Point-to-Point only"], correct: 1, e: "Two-way but not simultaneous." },
+            { q: "The Physical layer is responsible for:", a: ["Routing", "Bit-to-signal conversion", "Framing", "Process-to-process delivery"], correct: 1, e: "Phys layer deals with raw signals/bits." },
+            { q: "The number of I/O ports required for a node in a mesh network of 10 nodes is:", a: ["10", "9", "45", "100"], correct: 1, e: "Every node has (n-1) ports." },
+            { q: "Reliability of a network is measured by:", a: ["Throughput", "Frequency of failure", "Encryption level", "BPS"], correct: 1, e: "Frequency of failure = Reliability." },
+            { q: "WDM (Wavelength Division Multiplexing) is used primarily with:", a: ["Twisted pair", "Coaxial cable", "Fiber optics", "Satellite"], correct: 2, e: "WDM uses different colors/wavelengths of light." },
+            { q: "Which character is used in synchronous transmission to provide timing?", a: ["SOH", "STX", "SYN", "ETX"], correct: 2, e: "SYN for synchronization." },
+            { q: "A 'De Facto' standard means:", a: ["By law", "By fact/tradition", "By government decree", "By ISO"], correct: 1, e: "Standards by fact/market usage." },
+            { q: "Which device is often called a 'Multi-port Bridge'?", a: ["Router", "Hub", "Switch", "Gateway"], correct: 2, e: "Switches are basically multi-port bridges." },
+            // ... (Includes the 20 new Data Comm questions provided)
+            { q: "Which characteristic ensures data is delivered as sent, without unauthorized modification?", a: ["Delivery", "Accuracy", "Integrity", "Jitter"], correct: 1, e: "Accuracy/Integrity means no modification." },
+            { q: "What is the typical availability percentage target for a reliable network?", a: ["90%", "95%", "99%", "99.999%"], correct: 2, e: "The standard high-reliability target is 'three nines' or higher." },
+            { q: "Which term describes computers and support equipment used for communications?", a: ["DTE", "DCE", "Interface", "Modem"], correct: 0, e: "Data Terminal Equipment." },
+            { q: "A keyboard connection to a computer is primarily which configuration?", a: ["Multipoint", "Point-to-Point", "Broadcast", "Mesh"], correct: 1, e: "A dedicated point-to-point link." },
+            { q: "In a Star topology, if the central hub fails, what happens?", a: ["Network continues partially", "The entire network goes down", "Only one node fails", "Data is rerouted"], correct: 1, e: "The hub is a single point of failure." },
+            { q: "Which of the following is NOT an advantage of digital systems?", a: ["Noise immunity", "Ease of encryption", "Bandwidth efficiency", "Ease of integration"], correct: 2, e: "Digital systems are less bandwidth efficient than analog." },
+            { q: "What is the function of 'Semantics' in a protocol?", a: ["Format of data", "Control information for coordination", "The speed of transmission", "Bit structure"], correct: 1, e: "Semantics refers to the control/meaning." },
+            { q: "How many links are in a fully connected mesh network of 6 nodes?", a: ["6", "15", "30", "36"], correct: 1, e: "6 * 5 / 2 = 15." },
+            { q: "The 'D' channel in ISDN BRI is primarily used for:", a: ["User data", "Control and signaling", "Voice calls", "Video streaming"], correct: 1, e: "Delta channel is for signaling/control." },
+            { q: "A 'De Jure' standard is one that has been:", a: ["Adopted by market force", "Formalized by law or regulation", "Used by tradition", "Created by a single company"], correct: 1, e: "De Jure means legislated." },
+            { q: "What does the 'SOH' character stand for in data framing?", a: ["Start of Header", "Start of Host", "System On High", "Signal of Handshake"], correct: 0, e: "Start of Header." },
+            { q: "Which network spans the largest geographic area?", a: ["LAN", "MAN", "WAN", "PAN"], correct: 2, e: "Wide Area Network." },
+            { q: "Which multiplexing technique is analog and divides the link into frequency bands?", a: ["TDM", "FDM", "WDM", "CDM"], correct: 1, e: "Frequency Division Multiplexing." },
+            { q: "In asynchronous transmission, the 'Start Bit' is usually a:", a: ["Logic 1", "Logic 0", "Voltage spike", "Null character"], correct: 1, e: "Logic 0 (Space) is the start bit." },
+            { q: "Circuit switching is often described as being:", a: ["Connectionless", "Connection-oriented", "Best-effort", "Datagram-based"], correct: 1, e: "It establishes a persistent path." },
+            { q: "What is 'Throughput' in network criteria?", a: ["Speed of the cable", "Actual data successfully delivered over time", "The size of the packet", "The total number of nodes"], correct: 1, e: "Actual data delivery volume." },
+            { q: "The process of electrically communicating binary information is called:", a: ["Networking", "Data Communications", "Signal Processing", "Multiplexing"], correct: 1, e: "Definition of Data Comms." },
+            { q: "A Ring topology uses a special bit pattern called a ____ to manage access.", a: ["Pilot", "Guard", "Token", "Flag"], correct: 2, e: "Tokens manage ring access." },
+            { q: "In synchronous TDM, the time slots are grouped into:", a: ["Packets", "Frames", "Cells", "Segments"], correct: 1, e: "TDM data is organized into frames." },
+            { q: "Which component of data communication is the information to be communicated?", a: ["Protocol", "Medium", "Message", "Interface"], correct: 2, e: "The Message is the payload." }
+        ];
+
+        // DIGITAL COMMUNICATIONS (25 QUESTIONS)
+        const digitalCommRaw = [
+            { q: "The primary purpose of sampling is to:", a: "Convert continuous-time to discrete-time.", d: ["Convert analog to digital.", "Increase signal power.", "Remove noise."], e: "Sampling grabs discrete values from a continuous signal at specific intervals." },
+            { q: "The Nyquist rate for a 4kHz bandwidth signal is:", a: "8 kHz", d: ["4 kHz", "2 kHz", "16 kHz"], e: "Nyquist rate = 2 * highest frequency." },
+            { q: "Aliasing occurs when the sampling frequency is:", a: "Less than twice the maximum signal frequency.", d: ["Equal to the signal frequency.", "Greater than twice the signal frequency.", "Zero."], e: "Under-sampling causes high frequencies to appear as lower ones." },
+            { q: "In PCM, the rounding of sample values is called:", a: "Quantization", d: ["Sampling", "Encoding", "Multiplexing"], e: "Quantization maps infinite analog values to finite discrete levels." },
+            { q: "Standard PCM used in telephony (North America) uses how many bits?", a: "8 bits", d: ["7 bits", "10 bits", "16 bits"], e: "8-bit PCM is the standard for DS0 (64kbps) voice channels." },
+            { q: "Which line code is also known as Bipolar?", a: "AMI (Alternate Mark Inversion)", d: ["NRZ", "Manchester", "RZ"], e: "AMI alternates polarity for logic 1s." },
+            { q: "In Manchester encoding, a logic 1 is represented by:", a: "A transition in the middle of the bit period.", d: ["High voltage.", "Low voltage.", "No change."], e: "Manchester uses transitions to ensure clock synchronization." },
+            { q: "The main advantage of Delta Modulation over PCM is:", a: "Simpler hardware.", d: ["Higher fidelity.", "Less bandwidth.", "No noise."], e: "Delta modulation only tracks the 'change' from the previous sample." },
+            { q: "Slope overload in Delta Modulation is caused by:", a: "Signal changing faster than the step size can follow.", d: ["Step size being too large.", "Too much power.", "High sampling rate."], e: "When the input rises/falls too steeply, the staircase cannot keep up." },
+            { q: "Which modulation uses shifts in carrier phase to represent data?", a: "PSK (Phase Shift Keying)", d: ["ASK", "FSK", "AM"], e: "PSK varies the phase of the carrier." },
+            { q: "BPSK (Binary PSK) has how many possible phases?", a: "2", d: ["4", "8", "16"], e: "BPSK uses two phases (e.g., 0 and 180 degrees)." },
+            { q: "QPSK (Quadrature PSK) transmits how many bits per symbol?", a: "2", d: ["1", "3", "4"], e: "QPSK uses 4 phases, each representing 2 bits." },
+            { q: "The combination of ASK and PSK is known as:", a: "QAM (Quadrature Amplitude Modulation)", d: ["FSK", "DPSK", "PAM"], e: "QAM varies both amplitude and phase." },
+            { q: "Baud rate is defined as:", a: "Symbols per second.", d: ["Bits per second.", "Bytes per second.", "Pulses per second."], e: "Baud refers to the rate of signal element changes." },
+            { q: "If a QPSK system has a baud rate of 1200, its bit rate is:", a: "2400 bps", d: ["1200 bps", "600 bps", "4800 bps"], e: "Bit rate = Baud * log2(levels). For QPSK, 1200 * 2 = 2400." },
+            { q: "Which type of noise is caused by quantization errors in PCM?", a: "Quantization noise", d: ["Thermal noise", "Shot noise", "Crosstalk"], e: "This is the error between the original sample and the discrete level." },
+            { q: "Companding is used in PCM to:", a: "Improve SNR for weak signals.", d: ["Increase bandwidth.", "Reduce power.", "Speed up sampling."], e: "Compressing/Expanding gives more steps to low-level signals." },
+            { q: "The 'A-law' companding standard is primarily used in:", a: "Europe", d: ["North America", "Japan", "Global Satellite"], e: "A-law is European; Mu-law is North American/Japanese." },
+            { q: "Parity bits are used for:", a: "Error detection.", d: ["Error correction.", "Compression.", "Encryption."], e: "Simple parity detects single-bit errors." },
+            { q: "A Hamming code is an example of:", a: "Forward Error Correction (FEC).", d: ["Detection only.", "Compression.", "Line coding."], e: "Hamming codes can detect and fix errors." },
+            { q: "In ASK, a logic 0 is usually represented by:", a: "Zero carrier amplitude.", d: ["Frequency shift.", "Phase shift.", "Reverse polarity."], e: "Also known as On-Off Keying (OOK)." },
+            { q: "The 'Eye Pattern' is used to measure:", a: "ISI and jitter.", d: ["Signal power.", "Carrier frequency.", "Battery life."], e: "The opening of the 'eye' shows the quality of the digital signal." },
+            { q: "Intersymbol Interference (ISI) is primarily caused by:", a: "Bandwidth limitation and filtering.", d: ["High power.", "Too many users.", "Low sampling."], e: "Pulse spreading overlaps adjacent symbols." },
+            { q: "DPSK (Differential PSK) avoids the need for:", a: "Coherent carrier recovery.", d: ["Filters.", "Antennas.", "Amplifiers."], e: "DPSK uses the previous bit as the phase reference." },
+            { q: "Bit Error Rate (BER) is the ratio of:", a: "Error bits to total bits sent.", d: ["Correct bits to error bits.", "Power to noise.", "Speed to distance."], e: "BER = Errors / Total bits." }
+        ];
+
+        // PRINCIPLES OF COMMUNICATIONS (50 QUESTIONS)
+        const principlesDataRaw = [
+            { q: "The image frequency of a superheterodyne receiver:", a: "Is not rejected by the IF tuned circuits.", d: ["Is always lower than the local oscillator frequency.", "Is eliminated by the diode detector.", "Increases as the intermediate frequency decreases."], e: "The image frequency is converted to the same intermediate frequency as the signal, so the IF stages cannot distinguish or filter it." },
+            { q: "If the intermediate frequency is very high, which of the following is a false statement?", a: "Tracking will be improved.", d: ["Image frequency rejection is improved.", "The selectivity might be poorer.", "The local oscillator must operate at a higher frequency."], e: "High IF actually makes tracking across a wide tuning range more difficult due to the required capacitance ratios." },
+            { q: "Indicate which of the following statement about the advantages of the phase discriminator over the slope detector is false.", a: "Great limiting.", d: ["Better linearity.", "Easier to align.", "More efficient conversion."], e: "Neither the phase discriminator nor the slope detector provides inherent amplitude limiting; a separate limiter stage is usually required." },
+            { q: "The modulation index of an AM is changed from 0 to 1. The transmitted power is:", a: "Increase by 50 percent", d: ["Doubled", "Increase by 100 percent", "Unchanged"], e: "Sideband power is m²/2 times the carrier power; at m=1, sidebands add 50% to the total power." },
+            { q: "An AM signal: V_max(p-p) = 6.9 div, V_min(p-p) = 2.2 div. Scale is 1.5 V/div. What is the carrier voltage?", a: "6.825 V", d: ["10.35 V", "3.525 V", "5.175 V"], e: "Carrier voltage is the average: (Vmax + Vmin) / 4 * Scale. (6.9+2.2)/4 * 1.5 = 6.825V." },
+            { q: "The difference between the phase and frequency modulation:", a: "Lies in the different definitions of the modulation index.", d: ["Lies in the type of carrier used.", "Lies in the hardware used for receiver.", "Lies in the bandwidth requirement."], e: "In FM, the index depends on frequency deviation; in PM, it depends directly on the phase shift." },
+            { q: "A high-level modulation AM transmitter (50V, 5A, 85% eff). How much AF power is required for 100% modulation?", a: "125 W", d: ["250 W", "106.25 W", "212.5 W"], e: "Audio power must be 50% of DC supply power (50 * 5 / 2 = 125W)." },
+            { q: "In a ratio detector:", a: "The linearity is worse than in phase discriminator.", d: ["A separate limiter is always required.", "It requires three diodes.", "It cannot detect narrow-band FM."], e: "While it provides better limiting, the trade-off is often slightly reduced linearity." },
+            { q: "Amplitude modulation is used for broadcasting because:", a: "It uses avoids receiver complexity.", d: ["It is immune to noise.", "It is bandwidth efficient.", "It provides high-fidelity audio."], e: "A simple diode envelope detector is all that is needed to demodulate AM." },
+            { q: "Double-tuned IF amp (k=0.02, fr=5MHz). Find the overall bandwidth.", a: "150 kHz", d: ["100 kHz", "200 kHz", "50 kHz"], e: "For critical coupling in double tuning, the effective bandwidth is roughly 1.5 * k * fr." },
+            { q: "In AM, unmodulated antenna current is 2.5 A and modulated is 2.8 A. What is the modulation index?", a: "0.71", d: ["0.50", "0.85", "0.99"], e: "Using It = Ic * sqrt(1 + m²/2), 2.8 = 2.5 * sqrt(1 + m²/2) gives m ≈ 0.71." },
+            { q: "An SSB transmitter produces 200V p-p across 100-ohm load. What is the peak envelope power?", a: "50 W", d: ["400 W", "100 W", "25 W"], e: "Vrms = 100 / sqrt(2) ≈ 70.7. Power = Vrms²/R = 50W." },
+            { q: "In a radio receiver with simple AGC:", a: "An increase in signal strength produces more AGC.", d: ["The gain of audio amp is controlled.", "Weak signals are suppressed.", "LO frequency is adjusted."], e: "The AGC circuit detects carrier level and reduces gain for strong signals." },
+            { q: "What is the typical power of educational FM stations?", a: "10 W", d: ["1 kW", "50 kW", "100 mW"], e: "Low-power FM (LPFM) for educational use often begins at 10W." },
+            { q: "An AM receiver uses a diode detector for demodulation. It can satisfactorily receive:", a: "Single sideband, full carrier", d: ["SSB suppressed carrier", "Frequency Modulation", "Double sideband suppressed carrier"], e: "A diode detector requires a carrier to be present to extract the envelope (H3E)." },
+            { q: "R3E modulation is sometimes used to:", a: "Simply the frequency stability problem reception.", d: ["Increase efficiency.", "Eliminate balanced modulators.", "Allow diode detectors."], e: "The pilot carrier provides a reference for the receiver's local oscillator to lock onto." },
+            { q: "Frequency generated by decades in direct frequency synthesizers are higher than shown to:", a: "Reduce the spurious frequency problem", d: ["Increase resolution", "Save crystals", "Allow faster switching"], e: "Operating higher and dividing down pushes unwanted products (spurs) further away." },
+            { q: "In frequency modulation, determine the possible frequency deviation produced by noise.", a: "859 Hz", d: ["50 Hz", "5 kHz", "15 kHz"], e: "Standard noise calculation for voice-band FM systems." },
+            { q: "An FM signal with index mf passed through frequency tripler. Output mf will be:", a: "3mf", d: ["mf/3", "mf", "9mf"], e: "Tripling the carrier frequency also triples the deviation, thus tripling mf." },
+            { q: "Q required for 80 dB suppression at 15 MHz with 200 Hz separation:", a: "1.875 x 10^6", d: ["1500", "75,000", "1.25 x 10^4"], e: "High carrier with narrow separation requires extremely high Q." },
+            { q: "Which one of the following cannot be used to remove unwanted sideband in SSB?", a: "Balance modulator", d: ["Filter method", "Phase-shift method", "Third method"], e: "A balanced modulator removes the carrier but leaves both sidebands." },
+            { q: "Main function of RF amplifier in superheterodyne receiver:", a: "To improve the rejection of the image frequency.", d: ["Improve gain.", "Detect audio.", "Generate LO frequency."], e: "RF selectivity is the only defense against image frequencies entering the mixer." },
+            { q: "Which one of the following is an indirect way of generating FM?", a: "Armstrong modulator", d: ["Reactance modulator", "Varactor modulator", "VCO"], e: "Armstrong method generates phase modulation and then integrates it to create FM." },
+            { q: "In an FM stereo multiplex transmission:", a: "The difference signal modulates the 38 kHz sub carrier.", d: ["Separate frequencies are used.", "Signals are mixed at baseband.", "Pilot tone is 38 kHz."], e: "L-R signal is DSB-SC modulated onto a 38kHz subcarrier." },
+            { q: "A synthesizer (50MHz, 10kHz step) uses a 10:1 prescaler. New values:", a: "500 MHz, 100 kHz", d: ["500 MHz, 10 kHz", "50 MHz, 1 kHz", "1 GHz, 100 kHz"], e: "Prescaler multiplies both the frequency range and the step size by its factor." },
+            { q: "What is the primary purpose of pre-emphasis in FM?", a: "Boost high frequencies at transmitter.", d: ["Boost low frequencies at transmitter.", "Reduce total bandwidth.", "Increase carrier power."], e: "High frequencies are more susceptible to noise in FM; boosting them helps improve SNR." },
+            { q: "In a receiver, 'Sensitivity' refers to:", a: "Minimum signal for usable output.", d: ["Ability to reject interference.", "Total frequency range.", "Power output level."], e: "Sensitivity is the smallest input needed to reach a specific signal-to-noise ratio." },
+            { q: "What is the bandwidth of an AM signal with 5 kHz modulating signal?", a: "10 kHz", d: ["5 kHz", "15 kHz", "2.5 kHz"], e: "AM bandwidth is 2 * fm = 2 * 5 = 10 kHz." },
+            { q: "Which stage provides the most gain in a superheterodyne receiver?", a: "IF Amplifier", d: ["RF Amplifier", "Mixer", "Audio Amplifier"], e: "The IF stages are designed for fixed-frequency high gain and selectivity." },
+            { q: "Carson's Rule for FM bandwidth is:", a: "2 * (delta f + fm)", d: ["2 * delta f", "2 * fm", "delta f + fm"], e: "This approximation accounts for 98% of the power in an FM signal." },
+            { q: "Diagonal clipping in a diode detector is caused by:", a: "Large RC time constant", d: ["Small RC time constant", "Overmodulation", "Low carrier frequency"], e: "If the capacitor discharges too slowly, it can't follow the high-frequency audio swings." },
+            { q: "Thermal noise power is proportional to:", a: "k * T * B", d: ["V^2 / R", "I * R", "Frequency^2"], e: "Noise power = Boltzmann's constant * Temperature * Bandwidth." },
+            { q: "Capture effect is a characteristic of:", a: "FM", d: ["AM", "SSB", "PCM"], e: "The receiver locks onto the stronger signal and suppresses the weaker one." },
+            { q: "The modulation index of an FM signal is defined as:", a: "delta f / fm", d: ["fm / delta f", "Vmax / Vmin", "Pt / Pc"], e: "Frequency deviation divided by the modulating frequency." },
+            { q: "In PCM, 'Quantization' is:", a: "Rounding levels to discrete values.", d: ["Sampling at 2x frequency.", "Converting samples to binary.", "Multiplexing signals."], e: "Quantization assigns analog samples to finite, discrete levels." },
+            { q: "A signal power of 1W expressed in dBm is:", a: "30 dBm", d: ["0 dBm", "10 dBm", "20 dBm"], e: "1W = 1000mW. 10 * log10(1000) = 30 dBm." },
+            { q: "Nyquist sampling rate for a 3kHz voice signal is:", a: "6 kHz", d: ["3 kHz", "9 kHz", "12 kHz"], e: "Sampling rate must be at least twice the highest frequency." },
+            { q: "What does 'Squelch' do in a receiver?", a: "Mutes audio when no carrier is present.", d: ["Increases gain.", "Filters interference.", "Controls LO frequency."], e: "It silences the background noise/static when no signal is being received." },
+            { q: "Double sideband suppressed carrier (DSB-SC) compared to AM:", a: "Is more power efficient.", d: ["Uses more power.", "Uses less bandwidth.", "Is simpler to detect."], e: "DSB-SC is more efficient as it doesn't waste power on the carrier." },
+            { q: "Characteristic impedance of RG-59 cable is:", a: "75 ohms", d: ["50 ohms", "300 ohms", "600 ohms"], e: "75 ohms is the standard for video and CATV signal distribution." },
+            { q: "Narrowband FM deviation is typically limited to:", a: "5 kHz", d: ["75 kHz", "15 kHz", "25 kHz"], e: "Commercial wideband FM uses 75kHz, while NFM is typically 5kHz." },
+            { q: "Which diode is used for electronic tuning in receivers?", a: "Varactor", d: ["Zener", "Schottky", "Tunnel"], e: "Varactors have voltage-dependent capacitance." },
+            { q: "Frequency range of VHF band is:", a: "30-300 MHz", d: ["3-30 MHz", "300-3000 MHz", "3-30 GHz"], e: "Very High Frequency (VHF) spans 30 to 300 MHz." },
+            { q: "Phase-locked loops (PLL) are commonly used for:", a: "Frequency synthesis.", d: ["Filtering DC.", "Power regulation.", "Audio amplification."], e: "PLLs are fundamental in creating stable, programmable frequencies." },
+            { q: "The 'image frequency' is separated from the signal by:", a: "2 * IF", d: ["IF", "LO frequency", "fm"], e: "The image is always twice the intermediate frequency away from the tuned signal." },
+            { q: "In digital comms, 'Baud' rate is:", a: "Symbols per second.", d: ["Bits per second.", "Bytes per second.", "Hz per bit."], e: "Baud is the rate of signal changes (symbols) per second." },
+            { q: "What is 'aliasing'?", a: "False frequencies from under-sampling.", d: ["Strong signal overload.", "Noise in the carrier.", "Phase distortion."], e: "High-frequency signals appear as lower ones if sampled below Nyquist rate." },
+            { q: "SSB is primarily used for:", a: "Two-way long-range voice.", d: ["Music broadcasting.", "Video transmission.", "Short-range FM."], e: "SSB is bandwidth and power efficient, ideal for HF voice comms." },
+            { q: "Noise Figure is defined as:", a: "Input SNR / Output SNR", d: ["Output SNR / Input SNR", "Total Noise / Bandwidth", "Signal / Noise"], e: "It describes the degradation of SNR caused by a component or system." },
+            { q: "The primary advantage of FM over AM is:", a: "Superior noise rejection.", d: ["Simpler receiver.", "Narrower bandwidth.", "Easier transmission."], e: "The capture effect and limiting allow FM to be much more noise-resistant." }
+        ];
+
+        // Format helpers
+        const formatDataComm = (raw) => raw.map(i => ({
+            q: i.q,
+            a: Array.isArray(i.a) ? i.a[i.correct] : i.a,
+            d: Array.isArray(i.a) ? i.a.filter((_, idx) => idx !== i.correct) : i.d,
+            e: i.e || "Standard networking definition."
+        }));
+
+        const dataCommData = formatDataComm(dataCommRaw);
+        const principlesData = principlesDataRaw; // Already formatted
+        const digitalData = digitalCommRaw; // Already formatted
+
+        let quizData = [];
+        let currentIndex = 0;
+        let score = 0;
+        let mistakes = [];
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function startQuiz(mode) {
+            let label = "";
+            let source = [];
+
+            if (mode === 'principles') {
+                label = "Principles of Communications";
+                source = principlesData;
+            } else if (mode === 'data') {
+                label = "Data Communications";
+                source = dataCommData;
+            } else if (mode === 'digital') {
+                label = "Digital Communications";
+                source = digitalData;
+            }
+            
+            document.getElementById('mode-selection').classList.add('hidden');
+            document.getElementById('quiz-container').classList.remove('hidden');
+            document.getElementById('quiz-stats').classList.remove('hidden');
+            document.getElementById('progress-container').classList.remove('hidden');
+            document.getElementById('subject-label').innerText = label;
+
+            quizData = shuffleArray([...source]).map(item => {
+                let choices = shuffleArray([item.a, ...item.d]);
+                return { ...item, choices };
+            });
+
+            currentIndex = 0;
+            score = 0;
+            mistakes = [];
+            updateHeader();
+            renderQuestion();
+        }
+
+        function updateHeader() {
+            document.getElementById('progress-text').innerText = `Question ${currentIndex + 1} of ${quizData.length}`;
+            document.getElementById('score-text').innerText = `Score: ${score} / ${currentIndex}`;
+            const percent = (currentIndex / quizData.length) * 100;
+            document.getElementById('progress-bar').style.width = percent + '%';
+        }
+
+        function renderQuestion() {
+            const current = quizData[currentIndex];
+            document.getElementById('question-text').innerText = current.q;
+            const grid = document.getElementById('choices-grid');
+            grid.innerHTML = '';
+            
+            current.choices.forEach(choice => {
+                const btn = document.createElement('button');
+                btn.className = "choice-btn w-full p-4 text-left border border-rose-100 bg-white rounded-2xl font-medium text-rose-900/70 hover:bg-rose-50/50 hover:border-rose-200 transition-all flex justify-between items-center group";
+                btn.innerHTML = `<span>${choice}</span><span class="icon opacity-0 group-hover:opacity-40 transition-opacity"></span>`;
+                btn.onclick = () => handleChoice(choice, btn);
+                grid.appendChild(btn);
+            });
+
+            document.getElementById('feedback-area').classList.add('hidden');
+        }
+
+        function handleChoice(selected, btn) {
+            const current = quizData[currentIndex];
+            const allBtns = document.querySelectorAll('.choice-btn');
+            const isCorrect = selected === current.a;
+
+            allBtns.forEach(b => {
+                b.disabled = true;
+                const bText = b.querySelector('span:first-child').innerText;
+                const icon = b.querySelector('.icon');
+                
+                if (bText === current.a) {
+                    b.classList.add('correct');
+                    icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" /></svg>`;
+                    icon.classList.remove('opacity-0');
+                    icon.classList.add('opacity-100');
+                }
+            });
+
+            if (!isCorrect) {
+                btn.classList.add('incorrect');
+                const icon = btn.querySelector('.icon');
+                icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12" /></svg>`;
+                icon.classList.remove('opacity-0', 'group-hover:opacity-40');
+                icon.classList.add('opacity-100');
+                mistakes.push(current);
+            } else {
+                score++;
+            }
+
+            const status = document.getElementById('feedback-status');
+            status.innerHTML = isCorrect ? '<span class="text-emerald-500">Correct</span>' : '<span class="text-rose-400">Incorrect</span>';
+            document.getElementById('explanation-text').innerText = current.e;
+            document.getElementById('feedback-area').classList.remove('hidden');
+            document.getElementById('score-text').innerText = `Score: ${score} / ${currentIndex + 1}`;
+            
+            setTimeout(() => {
+                document.getElementById('feedback-area').scrollIntoView({ behavior: 'smooth', block: 'end' });
+            }, 100);
+        }
+
+        document.getElementById('next-btn').onclick = () => {
+            currentIndex++;
+            if (currentIndex < quizData.length) {
+                updateHeader();
+                renderQuestion();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                showResults(true);
+            }
+        };
+
+        function showResults(visible = true) {
+            document.getElementById('quiz-container').classList.toggle('hidden', visible);
+            document.getElementById('results-screen').classList.toggle('hidden', !visible);
+            document.getElementById('mistakes-screen').classList.add('hidden');
+            if (visible) {
+                document.getElementById('final-score').innerText = `${score} / ${quizData.length}`;
+                document.getElementById('view-mistakes-btn').classList.toggle('hidden', mistakes.length === 0);
+            }
+        }
+
+        function showMistakes() {
+            document.getElementById('results-screen').classList.add('hidden');
+            document.getElementById('mistakes-screen').classList.remove('hidden');
+            const list = document.getElementById('mistakes-list');
+            list.innerHTML = '';
+            mistakes.forEach(item => {
+                const div = document.createElement('div');
+                div.className = "p-6 bg-rose-50/30 rounded-2xl border border-rose-100 fade-in";
+                div.innerHTML = `
+                    <p class="font-bold text-rose-900/70 mb-3">${item.q}</p>
+                    <div class="bg-white p-4 rounded-xl mb-3 border border-rose-50 shadow-sm">
+                        <p class="text-sm font-bold text-emerald-600">Correct: ${item.a}</p>
+                    </div>
+                    <p class="text-xs text-rose-400/80 italic leading-relaxed">${item.e}</p>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        document.getElementById('view-mistakes-btn').onclick = showMistakes;
+    </script>
+</body>
+</html>
