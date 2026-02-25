@@ -93,14 +93,17 @@
         <div id="mode-selection" class="p-10 text-center">
             <h2 class="text-lg font-medium mb-8 text-rose-900/40 italic">Choose your focus area</h2>
             <div class="space-y-4 max-w-sm mx-auto">
-                <button onclick="startQuiz('principles')" class="w-full bg-white border-2 border-rose-100 text-[#8c5e63] font-bold py-4 rounded-2xl hover:border-rose-300 hover:bg-rose-50 transition-all shadow-sm">
+                <button onclick="startQuiz('principles')" class="w-full bg-purple-50 border-2 border-purple-200 text-purple-700 font-bold py-4 rounded-2xl hover:bg-purple-100 hover:border-purple-300 transition-all shadow-md transform hover:-translate-y-1">
                     Principles of Communications
                 </button>
-                <button onclick="startQuiz('data')" class="w-full bg-white border-2 border-rose-100 text-[#8c5e63] font-bold py-4 rounded-2xl hover:border-rose-300 hover:bg-rose-50 transition-all shadow-sm">
+                <button onclick="startQuiz('data')" class="w-full bg-orange-50 border-2 border-orange-200 text-orange-700 font-bold py-4 rounded-2xl hover:bg-orange-100 hover:border-orange-300 transition-all shadow-md transform hover:-translate-y-1">
                     Data Communications
                 </button>
-                <button onclick="startQuiz('digital')" class="w-full bg-white border-2 border-rose-100 text-[#8c5e63] font-bold py-4 rounded-2xl hover:border-rose-300 hover:bg-rose-50 transition-all shadow-sm">
+                <button onclick="startQuiz('digital')" class="w-full bg-teal-50 border-2 border-teal-200 text-teal-700 font-bold py-4 rounded-2xl hover:bg-teal-100 hover:border-teal-300 transition-all shadow-md transform hover:-translate-y-1">
                     Digital Communications
+                </button>
+                <button onclick="startQuiz('signals')" class="w-full bg-[#f0fdf4] border-2 border-[#86efac] text-[#14532d] font-bold py-4 rounded-2xl hover:bg-[#dcfce7] hover:border-[#4ade80] transition-all shadow-md transform hover:-translate-y-1">
+                    Signals, Spectra, and Signal Processing
                 </button>
                 <button onclick="startQuiz('preboards01')" class="w-full bg-rose-50 border-2 border-rose-300 text-rose-700 font-bold py-4 rounded-2xl hover:bg-rose-100 hover:border-rose-400 transition-all shadow-md transform hover:-translate-y-1">
                     EST Online Preboards 01
@@ -325,6 +328,35 @@
             { q: "SSB is primarily used for:", a: "Two-way long-range voice.", d: ["Music broadcasting.", "Video transmission.", "Short-range FM."], e: "SSB is bandwidth and power efficient, ideal for HF voice comms." },
             { q: "Noise Figure is defined as:", a: "Input SNR / Output SNR", d: ["Output SNR / Input SNR", "Total Noise / Bandwidth", "Signal / Noise"], e: "It describes the degradation of SNR caused by a component or system." },
             { q: "The primary advantage of FM over AM is:", a: "Superior noise rejection.", d: ["Simpler receiver.", "Narrower bandwidth.", "Easier transmission."], e: "The capture effect and limiting allow FM to be much more noise-resistant." }
+        ];
+
+        // SIGNALS, SPECTRA, AND SIGNAL PROCESSING
+        const signalsRaw = [
+            { q: "The signal-to-noise ratio is 30 dB at the input to an amplifier and 27.3 dB at the output. What is the noise temperature of the amplifier?", a: "249.4 K", d: ["290 K", "149.4 K", "300 K"], e: "Noise Figure F = SNR_in / SNR_out = 10^(30/10) / 10^(27.3/10) = 1000 / 537.03 = 1.86. Te = T0(F-1) = 290(1.86-1) = 290(0.86) = 249.4 K." },
+            { q: "Determine the effective noise temperature of an antenna system at the far end of the feedline if the effective sky noise temperature is 200 K and antenna and feedline loss is 10.", a: "281 K", d: ["200 K", "250 K", "300 K"], e: "Te = (T_sky + T_ant_loss) calculations based on standard noise temperature cascades." },
+            { q: "Which among the below specified conditions/cases of discrete time in terms of real constant ‘a’, represents the double-sided decaying exponential signal?", a: "-1 < a < 0", d: ["a > 1", "0 < a < 1", "a < -1"], e: "For a discrete-time signal a^|n|, if -1 < a < 0, it forms an alternating double-sided decaying exponential." },
+            { q: "A transistor amplifier has a measured S/N power of 10 at its input and 5 at its output. Calculate the transistor’s NF.", a: "2", d: ["5", "10", "15"], e: "Noise Factor (NF) = (S/N)in / (S/N)out = 10 / 5 = 2." },
+            { q: "Which mathematical notation specifies the condition of periodicity for a continuous time signal?", a: "x(t) = x(t + T0)", d: ["x(t) = x(-t)", "x(t) = -x(-t)", "x(t) = x(t - T0) / 2"], e: "A continuous-time signal is periodic if it repeats itself exactly after a time period T0." },
+            { q: "Recursive systems are basically characterized by the dependency of its output on ______", a: "all of the choices", d: ["present and past inputs", "past outputs", "present outputs only"], e: "Recursive systems use feedback, meaning current output depends on past outputs as well as present/past inputs." },
+            { q: "What is the nature of Fourier representation of a discrete and aperiodic signal?", a: "Continuous and periodic", d: ["Discrete and aperiodic", "Continuous and aperiodic", "Discrete and periodic"], e: "Discrete-Time Fourier Transform (DTFT) of an aperiodic discrete signal yields a continuous and periodic spectrum." },
+            { q: "\"Man-made\" noise can come from:", a: "equipment that sparks", d: ["the sun", "cosmic radiation", "thermal agitation of electrons"], e: "Man-made noise (industrial noise) comes from spark-producing mechanisms like commutators, switches, and ignition systems." },
+            { q: "A transistor amplifier has a measured S/N power of 80 at its input and 25 at its output. Determine the noise figure of the transistor.", a: "5.05 dB", d: ["3.20 dB", "8.00 dB", "2.50 dB"], e: "F = (S/N)in / (S/N)out = 80 / 25 = 3.2. NF(dB) = 10 * log10(3.2) = 5.05 dB." },
+            { q: "Which one of the following types of noise becomes of great importance at high frequencies?", a: "Transit-time noise", d: ["Thermal noise", "Flicker noise", "Shot noise"], e: "At very high frequencies, the transit time of electrons crossing a junction becomes comparable to the signal period, causing transit-time noise." },
+            { q: "An amplitude of sine function that passes through zero at multiple values of an independent variable ‘x’ _____.", a: "decreases with an increase in the magnitude of an independent variable (x)", d: ["increases with an increase in the magnitude of an independent variable (x)", "remains constant at all zero crossings", "doubles at every subsequent cycle"], e: "This refers to the behavior of the sinc(x) = sin(x)/x function, whose envelope decreases as 1/x." },
+            { q: "Which type/s of Fourier Series allow/s to represent the negative frequencies by plotting the double-sided spectrum for the analysis of periodic signals?", a: "Exponential Fourier Series", d: ["Trigonometric Fourier Series", "Cosine Fourier Series", "Sine Fourier Series"], e: "The complex exponential Fourier series uses e^(jωt), which inherently involves both positive and negative frequencies." },
+            { q: "Thermal noise is generated in ______.", a: "all of the choices", d: ["copper wires", "resistors", "semiconductor devices"], e: "Thermal noise (Johnson-Nyquist noise) is generated by the random thermal motion of electrons inside any conductor or electronic component." },
+            { q: "Indicate the false statement. Fourier analysis shows that the sawtooth wave consists of:", a: "fundamental and sub harmonic sine waves", d: ["fundamental and even harmonics", "fundamental and odd harmonics", "fundamental and all integer harmonics"], e: "A sawtooth wave contains the fundamental and all integer harmonics, not sub-harmonics." },
+            { q: "Indicate the false statement.", a: "Impulse noised voltage is independent of the bandwidth", d: ["Thermal noise power is proportional to bandwidth", "Shot noise is present in transistors", "Flicker noise dominates at low frequencies"], e: "Impulse noise voltage is actually highly dependent on the bandwidth of the receiver." },
+            { q: "Which among the below assertions is precise in accordance to the effect of time scaling?\n\nA : Inverse relationship exists between the time and frequency domain representation of signal\nB : A signal must be necessarily limited in time as well as frequency domains", a: "A is true and B is false", d: ["A is false and B is true", "Both A and B are true", "Both A and B are false"], e: "Time and frequency scale inversely (compression in time = expansion in freq). A signal cannot be strictly limited in both time and frequency simultaneously." },
+            { q: "Determine the noise current for a diode with a forward bias of 1 mA over a 100 kHz bandwidth?", a: "0.0057 µA", d: ["0.057 µA", "0.001 µA", "0.012 µA"], e: "Shot noise current In = sqrt(2*q*I*B) = sqrt(2 * 1.6e-19 * 1e-3 * 1e5) = sqrt(3.2e-17) = 5.65e-9 A = 0.0057 µA." },
+            { q: "Duality Theorem /Property of Fourier Transform states that ________.", a: "shape of signal in time domain & shape of spectrum can be interchangeable", d: ["time shifting is equivalent to frequency shifting", "energy in time domain equals energy in frequency domain", "convolution in time is multiplication in frequency"], e: "Duality states that if F{x(t)} = X(f), then F{X(t)} = x(-f), meaning the shapes can swap roles." },
+            { q: "What would happen if the two events are statistically independent?", a: "Conditional probability becomes equal to the elementary probability", d: ["Conditional probability becomes zero", "Joint probability becomes zero", "Conditional probability equals joint probability"], e: "If A and B are independent, P(A|B) = P(A), meaning the condition B does not change the probability of A." },
+            { q: "When measuring a voice channel at a -4 dB test point level, the meter reads -76 dBm. Calculate the reading in dBrnCo.", a: "18", d: ["14", "22", "8"], e: "dBrnc = dBm + 90. Reading in dBrnc = -76 + 90 = 14 dBrnc. Level at 0 TLP = 14 - (-4) = 18 dBrnC0." },
+            { q: "An amplifier operating over a 4-MHz bandwidth has a 100-W input resistance. It is operating at 27°C, has a voltage gain of 200 and has input signal of 5 µVrms. Determine rms output noise signal?", a: "515 µV", d: ["256 µV", "1024 µV", "10 µV"], e: "Vn = sqrt(4*k*T*R*B) = sqrt(4 * 1.38e-23 * 300 * 100 * 4e6) = 2.57 µV. Vo_noise = Av * Vn = 200 * 2.57 µV = 514.5 µV ≈ 515 µV." },
+            { q: "The value of the resistor creating thermal noise is doubled. The noise power generated is therefore", a: "unchanged", d: ["doubled", "halved", "quadrupled"], e: "Thermal noise power Pn = kTB. It depends only on temperature and bandwidth, independent of the resistance value." },
+            { q: "What is the nature of Fourier representation of a discrete and aperiodic signal?", a: "Continuous and periodic", d: ["Discrete and aperiodic", "Continuous and aperiodic", "Discrete and periodic"], e: "Discrete-Time Fourier Transform (DTFT) of an aperiodic discrete signal yields a continuous and periodic spectrum." },
+            { q: "Recursive systems are basically characterized by the dependency of its output on ______.", a: "All of the choices", d: ["past inputs", "past outputs", "present inputs"], e: "Recursive systems use feedback, meaning current output depends on past outputs as well as present/past inputs." },
+            { q: "Correlogram is a graph of ______.", a: "amplitude of one signal plotted against the amplitude of another signal", d: ["frequency plotted against time", "phase plotted against amplitude", "power density plotted against frequency"], e: "In specific old telemetry contexts, a correlogram plots the amplitude of one signal vs another (though statistically it represents auto-correlation)." }
         ];
 
         // PREBOARDS 01
@@ -560,6 +592,10 @@
         const preboards02Data = preboards02Raw.map(i => ({
             q: i.q, a: i.a, d: i.d, e: i.e
         }));
+        
+        const signalsData = signalsRaw.map(i => ({
+            q: i.q, a: i.a, d: i.d, e: i.e
+        }));
 
         let quizData = [];
         let currentIndex = 0;
@@ -587,6 +623,9 @@
             } else if (mode === 'digital') {
                 label = "Digital Communications";
                 source = digitalData;
+            } else if (mode === 'signals') {
+                label = "Signals, Spectra, and Signal Processing";
+                source = signalsData;
             } else if (mode === 'preboards01') {
                 label = "EST Online Preboards 01";
                 source = preboards01Data;
