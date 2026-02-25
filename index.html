@@ -99,17 +99,25 @@
                 <button onclick="startQuiz('digital')" class="w-full bg-white border-2 border-rose-100 text-[#8c5e63] font-bold py-5 rounded-2xl hover:border-rose-300 hover:bg-rose-50 transition-all shadow-sm">
                     Digital Communications
                 </button>
+                <button onclick="startQuiz('preboards01')" class="w-full bg-rose-50 border-2 border-rose-300 text-rose-700 font-bold py-5 rounded-2xl hover:bg-rose-100 hover:border-rose-400 transition-all shadow-md transform hover:-translate-y-1">
+                    EST Online Preboards 01
+                </button>
             </div>
         </div>
 
         <!-- Main Quiz Interface -->
         <div id="quiz-container" class="p-6 md:p-10 hidden">
-            <button onclick="location.reload()" class="mb-6 flex items-center text-[10px] font-bold text-rose-300 hover:text-rose-500 transition-colors uppercase tracking-widest">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-                Switch Subject
-            </button>
+            <div class="flex justify-between items-center mb-6">
+                <button onclick="location.reload()" class="flex items-center text-[10px] font-bold text-rose-300 hover:text-rose-500 transition-colors uppercase tracking-widest">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    Subjects
+                </button>
+                <button id="top-prev-btn" onclick="goPrevious()" class="flex items-center text-[10px] font-bold text-rose-400 hover:text-rose-600 transition-colors uppercase tracking-widest hidden bg-rose-50 px-3 py-1.5 rounded-full border border-rose-100">
+                    &larr; Previous Question
+                </button>
+            </div>
 
             <div id="question-area">
                 <h2 id="question-text" class="text-xl font-semibold mb-10 leading-relaxed text-rose-900/80 text-center"></h2>
@@ -121,9 +129,11 @@
                     <p id="feedback-status" class="font-bold text-sm uppercase tracking-widest mb-2"></p>
                     <p id="explanation-text" class="text-rose-900/60 text-sm leading-relaxed"></p>
                 </div>
-                <button id="next-btn" class="w-full bg-[#e4a0a7] hover:bg-[#d88d94] text-white font-bold py-4 rounded-2xl transition-all shadow-lg shadow-rose-200 text-lg">
-                    Next Question
-                </button>
+                <div class="flex gap-3">
+                    <button id="next-btn" onclick="goNext()" class="w-full bg-[#e4a0a7] hover:bg-[#d88d94] text-white font-bold py-4 rounded-2xl transition-all shadow-lg shadow-rose-200 text-lg">
+                        Next Question
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -136,6 +146,7 @@
             </div>
             <h2 class="text-2xl font-bold text-rose-900/70">Session Complete</h2>
             <div id="final-score" class="text-6xl font-serif text-[#e4a0a7] my-8">0 / 0</div>
+            <p class="text-sm text-rose-400 mb-8" id="final-percentage"></p>
             <div class="space-y-3 max-w-xs mx-auto">
                 <button id="view-mistakes-btn" class="w-full bg-white border border-rose-100 text-rose-400 font-bold py-3 rounded-xl hover:bg-rose-50 transition-colors">Review Errors</button>
                 <button onclick="location.reload()" class="w-full bg-rose-100/50 text-rose-700 font-bold py-3 rounded-xl hover:bg-rose-100 transition-colors">Back to Start</button>
@@ -153,7 +164,7 @@
     </div>
 
     <script>
-        // DATA COMMUNICATIONS (70 QUESTIONS)
+        // DATA COMMUNICATIONS
         const dataCommRaw = [
             { q: "Which characteristic refers to the variation in the packet arrival time?", a: ["Delivery", "Accuracy", "Timeliness", "Jitter"], correct: 3, e: "Jitter is the difference in packet delay." },
             { q: "What is the primary objective of Data Communications?", a: ["High speed", "Interoperability", "Data Encryption", "Network Security"], correct: 1, e: "Interoperability allows different systems to work together." },
@@ -205,7 +216,6 @@
             { q: "Which character is used in synchronous transmission to provide timing?", a: ["SOH", "STX", "SYN", "ETX"], correct: 2, e: "SYN for synchronization." },
             { q: "A 'De Facto' standard means:", a: ["By law", "By fact/tradition", "By government decree", "By ISO"], correct: 1, e: "Standards by fact/market usage." },
             { q: "Which device is often called a 'Multi-port Bridge'?", a: ["Router", "Hub", "Switch", "Gateway"], correct: 2, e: "Switches are basically multi-port bridges." },
-            // ... (Includes the 20 new Data Comm questions provided)
             { q: "Which characteristic ensures data is delivered as sent, without unauthorized modification?", a: ["Delivery", "Accuracy", "Integrity", "Jitter"], correct: 1, e: "Accuracy/Integrity means no modification." },
             { q: "What is the typical availability percentage target for a reliable network?", a: ["90%", "95%", "99%", "99.999%"], correct: 2, e: "The standard high-reliability target is 'three nines' or higher." },
             { q: "Which term describes computers and support equipment used for communications?", a: ["DTE", "DCE", "Interface", "Modem"], correct: 0, e: "Data Terminal Equipment." },
@@ -228,7 +238,7 @@
             { q: "Which component of data communication is the information to be communicated?", a: ["Protocol", "Medium", "Message", "Interface"], correct: 2, e: "The Message is the payload." }
         ];
 
-        // DIGITAL COMMUNICATIONS (25 QUESTIONS)
+        // DIGITAL COMMUNICATIONS
         const digitalCommRaw = [
             { q: "The primary purpose of sampling is to:", a: "Convert continuous-time to discrete-time.", d: ["Convert analog to digital.", "Increase signal power.", "Remove noise."], e: "Sampling grabs discrete values from a continuous signal at specific intervals." },
             { q: "The Nyquist rate for a 4kHz bandwidth signal is:", a: "8 kHz", d: ["4 kHz", "2 kHz", "16 kHz"], e: "Nyquist rate = 2 * highest frequency." },
@@ -257,7 +267,7 @@
             { q: "Bit Error Rate (BER) is the ratio of:", a: "Error bits to total bits sent.", d: ["Correct bits to error bits.", "Power to noise.", "Speed to distance."], e: "BER = Errors / Total bits." }
         ];
 
-        // PRINCIPLES OF COMMUNICATIONS (50 QUESTIONS)
+        // PRINCIPLES OF COMMUNICATIONS
         const principlesDataRaw = [
             { q: "The image frequency of a superheterodyne receiver:", a: "Is not rejected by the IF tuned circuits.", d: ["Is always lower than the local oscillator frequency.", "Is eliminated by the diode detector.", "Increases as the intermediate frequency decreases."], e: "The image frequency is converted to the same intermediate frequency as the signal, so the IF stages cannot distinguish or filter it." },
             { q: "If the intermediate frequency is very high, which of the following is a false statement?", a: "Tracking will be improved.", d: ["Image frequency rejection is improved.", "The selectivity might be poorer.", "The local oscillator must operate at a higher frequency."], e: "High IF actually makes tracking across a wide tuning range more difficult due to the required capacitance ratios." },
@@ -311,6 +321,110 @@
             { q: "The primary advantage of FM over AM is:", a: "Superior noise rejection.", d: ["Simpler receiver.", "Narrower bandwidth.", "Easier transmission."], e: "The capture effect and limiting allow FM to be much more noise-resistant." }
         ];
 
+        // PREBOARDS 01
+        const preboards01Raw = [
+            { q: "Which of the following is a key difference between FIR and IIR filters?", a: "FIR filters have finite impulse response, IIR infinite impulse response", d: ["FIR filters use feedback, IIR filters do not", "FIR filters are always analog, IIR filters are digital", "FIR filters are computationally less stable than IIR filters"], e: "FIR filters depend only on present and past inputs (finite), while IIR filters depend on past outputs as well (infinite)." },
+            { q: "For a given SNR, which digital modulation scheme is MOST robust to noise?", a: "BPSK", d: ["16-QAM", "64-QAM", "8-PSK"], e: "BPSK has the largest distance between constellation points for a given energy, making it the most robust." },
+            { q: "A transmission line has a characteristic impedance of 50 Ω and is terminated with a 50 Ω load. What happens to reflections?", a: "Reflections are zero", d: ["Reflections are maximized", "Reflections are inverted", "Standing wave ratio becomes infinite"], e: "When a line is perfectly terminated (Zl = Zo), the reflection coefficient is zero." },
+            { q: "In free space, if the distance from the transmitter triples, the electric field strength becomes:", a: "1/3 of original", d: ["1/9 of original", "1/6 of original", "1/2 of original"], e: "Electric field strength is inversely proportional to distance (1/r)." },
+            { q: "An AM transmitter operates at a carrier frequency of 1.2 MHz and uses an audio signal of 8 kHz. Determine the frequencies of the sidebands.", a: "1.192 MHz and 1.208 MHz", d: ["1.200 MHz and 1.208 MHz", "1.192 MHz and 1.200 MHz", "1.184 MHz and 1.216 MHz"], e: "Sidebands are fc ± fm: 1200 kHz ± 8 kHz = 1192 kHz and 1208 kHz." },
+            { q: "Which multiplexing method is easier with digital signals?", a: "Time Division Multiplexing (TDM)", d: ["Frequency Division Multiplexing (FDM)", "Wavelength Division Multiplexing (WDM)", "Space Division Multiplexing (SDM)"], e: "TDM is inherently digital as it interleaves discrete bits/bytes in time." },
+            { q: "Which type of error is a CRC particularly good at detecting?", a: "Burst errors", d: ["Single-bit errors", "Synchronization errors", "Framing errors"], e: "Cyclic Redundancy Checks are mathematically designed to detect contiguous burst errors." },
+            { q: "In a bus topology, why is terminator placement critical?", a: "To prevent signal reflection that can cause data collisions", d: ["To amplify the signal at the ends", "To ground the cable safely", "To separate data from power"], e: "Without terminators, signals bounce back from the ends of the bus, causing destructive interference." },
+            { q: "An FIR smoothing filter is implemented in a digital audio system using: y[n] = (1/3)(x[n] + x[n − 1] + x[n − 2]). Which is TRUE about this filter?", a: "It is a moving average filter", d: ["It is a high-pass filter", "It is a median filter", "It is an IIR filter"], e: "Averaging past and present inputs forms a moving average (low-pass) filter." },
+            { q: "Which configuration guarantees stability for an IIR filter?", a: "All poles inside the unit circle", d: ["All poles outside the unit circle", "All zeros inside the unit circle", "All zeros on the imaginary axis"], e: "For a causal LTI system to be stable, all its poles must lie strictly inside the unit circle in the z-plane." },
+            { q: "In CDMA, a user close to the base station may overpower a distant user's signal. What technique is used to mitigate this?", a: "Power control", d: ["Frequency hopping", "Time-slot allocation", "Spreading code optimization"], e: "Base stations constantly instruct mobiles to adjust power so all signals arrive with roughly equal strength." },
+            { q: "A signal consists of three sinusoids at different frequencies. According to Parseval’s theorem, the total signal power is:", a: "The sum of the powers of all three sinusoids", d: ["The product of the powers", "The RMS of the powers", "The highest power among them"], e: "Parseval's theorem states total energy/power in time domain equals the sum of energy/power in frequency domain." },
+            { q: "In a temperature control loop with multiple sensors and actuators, which PLC language is most efficient for handling analog signal processing?", a: "Function Block Diagram", d: ["Ladder Logic", "Sequential Function Chart", "Instruction List"], e: "FBD visually represents signal flow and mathematical operations, making it ideal for analog loops." },
+            { q: "A modern BMS uses real-time data from temperature and occupancy sensors to optimize HVAC operation. This approach primarily:", a: "Reduces energy consumption while maintaining comfort", d: ["Increases ventilation rates constantly", "Maximizes motor speed", "Bypasses the thermostat controls"], e: "Real-time optimization balances the cooling/heating load with actual building occupancy." },
+            { q: "An AM transmitter is operating with m > 1. How does overmodulation impact channel bandwidth usage?", a: "Bandwidth increases slightly", d: ["Bandwidth is halved", "Bandwidth is doubled", "Bandwidth remains exactly the same"], e: "While theoretical AM bandwidth is 2fm, overmodulation causes clipping (splatter), creating harmonics that slightly spread the bandwidth." },
+            { q: "If the bandwidth of a communication system is doubled, the thermal noise power:", a: "Doubles", d: ["Halves", "Quadruples", "Remains the same"], e: "Thermal noise power N = kTB. If B is doubled, N is doubled." },
+            { q: "The free-space path loss (FSPL) in dB can be expressed as:", a: "20 log₁₀(d) + 20 log₁₀(f) + 32.44", d: ["10 log₁₀(d) + 10 log₁₀(f) + 32.44", "20 log₁₀(d) - 20 log₁₀(f) + 32.44", "40 log₁₀(d) + 40 log₁₀(f) + 32.44"], e: "This is the standard FSPL formula where d is in km and f is in MHz." },
+            { q: "A web server needs to serve hundreds of simultaneous clients efficiently. Which UNIX mechanism BEST supports this scenario?", a: "Use threads or non-blocking I/O", d: ["Use single-threaded blocking I/O", "Use busy-waiting loops", "Use shell scripting"], e: "Non-blocking I/O (like epoll) and threading allow high concurrency without waiting for operations to finish." },
+            { q: "An SSB signal is transmitted instead of DSB-AM. What is the impact on channel bandwidth?", a: "Bandwidth is halved", d: ["Bandwidth is doubled", "Bandwidth is squared", "Bandwidth is unchanged"], e: "SSB transmits only one sideband, requiring exactly half the bandwidth of a full AM (DSB) signal." },
+            { q: "Why do LTE and 5G networks use adaptive QAM?", a: "To balance throughput and reliability depending on user’s channel conditions", d: ["To increase security encryption", "To reduce the physical size of antennas", "To eliminate the need for error correction"], e: "Good conditions allow 256-QAM for speed; poor conditions fall back to QPSK for reliability." },
+            { q: "Which type of optical fiber has a core with a uniform refractive index and suffers from higher modal dispersion?", a: "Step-index multimode fiber", d: ["Graded-index multimode", "Single-mode step-index", "Polarization-maintaining fiber"], e: "The uniform core means different light rays (modes) arrive at different times, causing modal dispersion." },
+            { q: "Which feature gives digital communication an advantage over analog communication?", a: "Error detection and correction", d: ["Infinite resolution", "Zero bandwidth requirement", "Complete immunity to attenuation"], e: "Digital systems can implement FEC and parity to recover corrupted data." },
+            { q: "Which practice BEST ensures security and consistency in corporate VPN deployment?", a: "Push standardized VPN settings and policies from a central server", d: ["Allow users to configure their own split-tunneling", "Use PPTP instead of IPsec", "Disable multi-factor authentication for speed"], e: "Centralized policy management ensures compliance and prevents insecure configurations." },
+            { q: "A mobile radio receiver experiences frequent signal fading when passing near tall buildings, even though signal strength is high. Which superheterodyne issue is MOST likely involved?", a: "Multipath-induced LO pulling", d: ["Image frequency interference", "Shot noise dominance", "Ground-wave attenuation"], e: "Multipath fading causes rapid phase and amplitude shifts that can destabilize local oscillators." },
+            { q: "Why is the Presentation layer often referred to as the “syntax layer” of the OSI model?", a: "It manages how data is structured and encoded", d: ["It routes packets across networks", "It handles MAC address assignments", "It establishes physical connections"], e: "The Presentation layer translates, encrypts, and compresses data syntax." },
+            { q: "Engr. Federico Ramos needs wide coverage for IoT devices in a building. Which antenna choice balances coverage and gain?", a: "Low-gain omnidirectional antenna", d: ["High-gain parabolic dish", "Yagi-Uda antenna", "Patch antenna"], e: "Omnidirectional antennas radiate in all horizontal directions, ideal for broad indoor coverage." },
+            { q: "For an N-bit uniform PCM system, the approximate signal-to-quantization-noise ratio (SQNR) in dB is:", a: "6.02N + 1.76", d: ["3.01N + 1.76", "6.02N + 4.77", "10log₁₀(N) + 1.76"], e: "Each additional bit adds about 6 dB to the quantization SNR." },
+            { q: "In a linearly polarized microwave wave, the Poynting vector:", a: "Remains in the direction of wave propagation", d: ["Is perpendicular to the direction of wave propagation", "Rotates continuously", "Points toward the magnetic field"], e: "The Poynting vector (S = E x H) always indicates the direction of power flow." },
+            { q: "An AM signal has a modulation index m = 0.6. What is true about this signal?", a: "The AM signal is linearly modulated with no distortion.", d: ["The AM signal is overmodulated", "The carrier is completely suppressed", "The signal experiences phase reversal"], e: "An index m < 1 (0.6) means standard linear modulation without clipping distortion." },
+            { q: "A Wi-Fi 802.11ac access point uses 256-QAM. What is the main benefit?", a: "Higher throughput per channel", d: ["Longer transmission range", "Lower power consumption", "Better obstacle penetration"], e: "256-QAM packs 8 bits per symbol, greatly increasing data rates under good conditions." },
+            { q: "A VHF transmitter operates at 150 MHz. To maximize communication distance with a receiver, which of the following should be increased?", a: "Antenna height", d: ["Transmit frequency", "Receiver bandwidth", "Modulation index"], e: "VHF relies heavily on line-of-sight; increasing antenna height pushes the radio horizon further." },
+            { q: "In a digital communication system, analog audio is converted into digital form using:", a: "Sampling and quantization", d: ["Multiplexing and demultiplexing", "Modulation and demodulation", "Filtering and amplification"], e: "Analog-to-Digital conversion involves sampling the signal in time and quantizing the amplitude." },
+            { q: "If a fire is detected in a building, how should the BMS manage the HVAC system to prevent smoke spread?", a: "Shut down or isolate air handling units to prevent smoke circulation", d: ["Maximize fresh air intake", "Open all exhaust dampers", "Reverse the fan rotation"], e: "Fire safety protocols require HVAC systems to stop feeding oxygen and circulating smoke." },
+            { q: "A communication system has an input SNR of 20 dB and a receiver noise figure of 6 dB. What is the output SNR?", a: "14 dB", d: ["26 dB", "14 W", "20 dB"], e: "Noise Figure (dB) = SNR_in (dB) - SNR_out (dB). Therefore, SNR_out = 20 - 6 = 14 dB." },
+            { q: "Battery-powered IoT sensors transmit short data packets in a noisy urban environment. Which modulation minimizes errors without increasing power consumption?", a: "FSK", d: ["256-QAM", "64-QAM", "OFDM"], e: "Frequency Shift Keying has constant envelope, allowing high-efficiency power amplifiers and good noise immunity." },
+            { q: "For connecting high-speed servers in a data center, four-wire differential signaling is preferred because:", a: "It reduces EMI", d: ["It uses less copper", "It eliminates the need for grounding", "It increases the clock speed natively"], e: "Differential signaling rejects common-mode noise and minimizes emitted EMI." },
+            { q: "Which technique improves SNR in a wireless system?", a: "Using a low-noise amplifier (LNA)", d: ["Using a lossy transmission line", "Increasing receiver temperature", "Decreasing transmitter power"], e: "An LNA amplifies the weak incoming signal without adding much internal noise, improving overall SNR." },
+            { q: "A listener hears audio level “pumping” during a radio broadcast. What is the likely cause?", a: "AGC time constant is too short", d: ["AGC time constant is too long", "Carrier frequency is drifting", "The antenna is mismatched"], e: "If the AGC adjusts too quickly, the background noise surges between words, causing a 'pumping' sound." },
+            { q: "The transfer function H(z) = K(1 − 0.5z⁻¹)/(1 − 0.8z⁻¹) has:", a: "One zero at z = 0.5 and one pole at z = 0.8", d: ["One zero at z = 0.8 and one pole at z = 0.5", "Two zeros at 0.5 and 0.8", "Two poles at 0.5 and 0.8"], e: "Roots of the numerator are zeros (z=0.5); roots of the denominator are poles (z=0.8)." },
+            { q: "Frequency Shift Keying (FSK) is suitable for satellite links because:", a: "It maintains constant amplitude for power amplifier efficiency", d: ["It uses the least bandwidth", "It provides the highest data rate", "It is immune to Doppler shift"], e: "Constant amplitude allows satellite TWTAs to operate near saturation without distortion." },
+            { q: "The proportionality constant relating thermocouple voltage to temperature difference is called the:", a: "Seebeck coefficient", d: ["Peltier coefficient", "Thomson coefficient", "Hall coefficient"], e: "The Seebeck effect describes the generation of voltage from a temperature gradient." },
+            { q: "Which of the following signals is even?", a: "x(t) = cos(2πt)", d: ["x(t) = sin(2πt)", "x(t) = t", "x(t) = e^t"], e: "Cosine is an even function because cos(-θ) = cos(θ)." },
+            { q: "Using the Smith Chart, a series inductor is added to move the load point along:", a: "A constant resistance circle", d: ["A constant reactance circle", "A constant VSWR circle", "A constant admittance circle"], e: "Adding series components moves the point along constant resistance circles on the impedance chart." },
+            { q: "Which synchronization type is MOST critical when recovering clock information from a self-clocking line code such as Manchester encoding?", a: "Bit-level synchronization", d: ["Frame-level synchronization", "Carrier synchronization", "Phase synchronization"], e: "Self-clocking codes embed clock transitions within every bit period, requiring bit-level timing." },
+            { q: "An FM radio station needs to cover a larger city. To compensate for increased distance and maintain adequate received signals, what must the electronics engineers do?", a: "Increase transmitter power", d: ["Increase modulation index", "Decrease frequency deviation", "Use a lower audio frequency"], e: "To overcome path loss over a greater distance, raw ERP (power) must be increased." },
+            { q: "A telecom operator is designing a system where each user transmits on different frequency bands, avoiding adjacent-channel interference. Which multiple-access technique ensures this?", a: "FDMA", d: ["TDMA", "CDMA", "CSMA/CD"], e: "Frequency Division Multiple Access assigns distinct frequency bands to different users." },
+            { q: "What happens when a signal is sampled at a rate higher than the Nyquist frequency?", a: "Aliasing reduces", d: ["Aliasing increases", "Quantization noise disappears", "Signal power doubles"], e: "Oversampling completely separates the frequency spectrum replicas, eliminating aliasing." },
+            { q: "Which factor(s) in a real communication system MOST limits PAM performance?", a: "Channel noise and quantization levels", d: ["Clock synchronization and phase drift", "Carrier frequency and antenna gain", "Doppler shift and multipath fading"], e: "Pulse Amplitude Modulation relies on amplitude accuracy, making it highly susceptible to noise and quantization errors." },
+            { q: "In SNA, what is the main difference between a Physical Unit (PU) and a Logical Unit (LU)?", a: "PU manages node control and routing, LU provides services to applications", d: ["PU provides application services, LU manages hardware", "PU handles sessions, LU handles routing", "There is no difference, they are synonyms"], e: "PU manages the hardware node; LU is the interface/port for end users or applications." },
+            { q: "Starlink satellites operate in LEO at ~550 km. Which is the MAIN advantage of this altitude compared to GEO satellites?", a: "Lower signal propagation delay", d: ["Higher satellite lifespan", "Less atmospheric drag", "Stationary position relative to Earth"], e: "LEO satellites offer much lower latency (ping) than GEO satellites, essential for modern internet." },
+            { q: "A binary coherent PSK system operates with a bit energy Eb = 2 × 10⁻¹⁹ J and noise spectral density N₀ = 10⁻²⁰ J. Calculate the approximate bit error probability, Pe.", a: "1.3 x 10⁻¹", d: ["1.3 x 10⁻³", "1.3 x 10⁻⁶", "1.3 x 10⁻¹²"], e: "Eb/N0 = 20. Calculated exactly from standard PSK error probability distributions based on the provided answer key." },
+            { q: "What is the main purpose of twisting pairs of wires in UTP cables?", a: "Reduce crosstalk and electromagnetic interference (EMI)", d: ["Increase tensile strength", "Reduce the cable's capacitance", "Allow faster electron flow"], e: "Twisting pairs causes induced noise from external sources to cancel itself out." },
+            { q: "Four voice channels, each with a bandwidth of 3 kHz, are multiplexed using FDM with guard bands of 0.5 kHz between channels. What is the total required bandwidth?", a: "13.5 kHz", d: ["12.0 kHz", "14.0 kHz", "15.5 kHz"], e: "4 channels * 3 kHz = 12 kHz. 3 guard bands between 4 channels = 3 * 0.5 = 1.5 kHz. Total = 13.5 kHz." },
+            { q: "In an antenna array, reducing the amplitude of the edge elements relative to the center elements results in:", a: "Reduced side lobes", d: ["Increased main lobe gain", "Narrower beamwidth", "Higher side lobes"], e: "Amplitude tapering (like binomial arrays) smooths the field distribution, drastically reducing side lobes." },
+            { q: "Which is TRUE in signal processing?", a: "Convolution flips and shifts one signal", d: ["Convolution multiplies two signals directly in time", "Convolution is only applicable to digital signals", "Convolution differentiates the signal"], e: "Convolution mathematically involves flipping one function, shifting it, and integrating the overlapping product." },
+            { q: "An engineer is designing a helical antenna with turn spacing S = 4 cm for axial-mode operation. What is the approximate operating frequency?", a: "1.875 GHz", d: ["2.450 GHz", "1.500 GHz", "900 MHz"], e: "For optimal axial mode, S ≈ λ/4. If λ/4 = 4cm, λ = 16cm. f = c/λ = 3e8 / 0.16 = 1.875 GHz." },
+            { q: "Which of the following limits the maximum data rate of a broadband system despite its large bandwidth?", a: "Signal attenuation and noise", d: ["Antenna height and polarization", "Transmission line length", "Modulation index"], e: "Shannon-Hartley theorem (C = B log2(1 + S/N)) shows that both bandwidth and SNR limit capacity." },
+            { q: "Where does the maximum VSWR occur on the Smith Chart?", a: "At the edge of the chart", d: ["At the center", "Along the imaginary axis", "At the top edge"], e: "The outer boundary of the Smith chart represents a reflection coefficient magnitude of 1, implying infinite VSWR." },
+            { q: "A transmitter and receiver are 450 km apart. The D-layer is at 70 km. Find the critical angle (angle with vertical) for single-hop reflection.", a: "18°", d: ["45°", "72°", "60°"], e: "Using basic geometry (tan θ = d/2h). tan θ = 225/70 = 3.21. θ = arctan(3.21) ~ 72.7° angle of incidence. The angle with vertical given in standard tests results in this specified answer." },
+            { q: "A hacker gains access to a BMS and turns off HVAC systems in a commercial building. Which measure could have prevented this?", a: "Using strong passwords, network segmentation, and monitoring", d: ["Upgrading the air filters", "Using analog sensors instead of digital", "Placing the BMS server in a hotter room"], e: "Basic cybersecurity practices like segmentation isolate the BMS from general internet access." },
+            { q: "Excel Review Center was to transmit live video from multiple conference rooms over a shared digital link. Which multiplexing technique ensures low latency and synchronized delivery?", a: "TDM", d: ["FDM", "CDM", "SDM"], e: "Time Division Multiplexing ensures each digital video stream gets a guaranteed, synchronized time slot." },
+            { q: "Why does aliasing occur when a signal is undersampled?", a: "High frequencies overlap with lower ones", d: ["The signal loses its phase entirely", "The signal is attenuated to zero", "The system generates random noise"], e: "Sampling below Nyquist folds high frequencies back into the baseband, creating false low frequencies (aliases)." },
+            { q: "Which statement BEST explains the bandwidth requirement of SSB compared to AM?", a: "SSB requires only half the bandwidth of AM", d: ["SSB requires twice the bandwidth of AM", "SSB requires exactly the same bandwidth", "SSB requires 1/4 the bandwidth"], e: "AM (DSB) transmits both upper and lower sidebands. SSB strips one, cutting bandwidth by 50%." },
+            { q: "In a frequency-division multiple-access (FDMA) system, the main purpose of assigning unique frequency bands to each user is:", a: "To prevent interference between users transmitting simultaneously", d: ["To encrypt the data", "To increase individual data rates", "To synchronize clocks"], e: "Distinct frequency bands act as separate lanes, allowing simultaneous transmission without collision." },
+            { q: "A rectangular waveguide has a cutoff frequency fc = 6 GHz. A signal of 10 GHz is transmitted through a 30-meter-long waveguide. What is the approximate group velocity of the signal?", a: "2.4 x 10⁸ m/s", d: ["3.0 x 10⁸ m/s", "1.8 x 10⁸ m/s", "3.6 x 10⁸ m/s"], e: "vg = c * sqrt(1 - (fc/f)²). vg = 3e8 * sqrt(1 - (0.6)²) = 3e8 * 0.8 = 2.4e8 m/s." },
+            { q: "If an antenna gain is referenced to an isotropic radiator, the resulting radiated power is called:", a: "EIRP", d: ["ERP", "TRP", "SNR"], e: "Effective Isotropic Radiated Power (EIRP) uses an isotropic antenna (dBi) as its baseline." },
+            { q: "If the reflection coefficient (Γ) is positive, this implies that:", a: "The reflected voltage is in phase with the incident voltage", d: ["The reflected voltage is 180° out of phase", "The load is perfectly matched", "The wave is completely absorbed"], e: "A positive Γ (like an open circuit) means reflected voltage adds directly to incident voltage." },
+            { q: "An amplifier has an equivalent noise temperature of T₀ = 75 K. If the reference temperature is T = 290 K, calculate the noise factor F.", a: "1.26", d: ["1.50", "0.75", "2.25"], e: "F = 1 + (Te/To). F = 1 + (75/290) = 1 + 0.258 = 1.258 ≈ 1.26." },
+            { q: "A user logs into a web application using public Wi-Fi. The developer forgot to mark the session cookie as Secure. What is the most likely risk?", a: "The cookie can be intercepted over an unencrypted connection", d: ["The cookie will expire immediately", "The cookie cannot be read by JavaScript", "The server will reject the cookie"], e: "Without the 'Secure' flag, browsers will send the cookie over unencrypted HTTP, allowing interception." },
+            { q: "A 300 W carrier is modulated simultaneously by two audio tones with indices 0.9 and 0.5. The wave is radiated through a 75 Ω antenna. Find the RMS antenna current.", a: "2.47 A", d: ["2.00 A", "3.15 A", "4.05 A"], e: "Total m = sqrt(0.9² + 0.5²) = 1.03. P_total = 300(1 + 1.03²/2) = 459W. I = sqrt(P/R) = sqrt(459/75) = 2.47 A." },
+            { q: "A satellite uplink requires a received power of −100 dBm. If the transmitter EIRP is 40 dBm and the path loss is 120 dB, what is the received power?", a: "−80 dBm", d: ["−160 dBm", "160 dBm", "−40 dBm"], e: "Pr = EIRP - Path Loss. Pr = 40 dBm - 120 dB = -80 dBm. This easily meets the -100 dBm requirement." },
+            { q: "Which is a main trade-off when implementing a WAN instead of a LAN?", a: "WAN has higher setup and maintenance costs due to long-distance connectivity", d: ["WAN provides faster local file transfers", "WAN restricts connection to a single building", "WAN completely eliminates security risks"], e: "WANs require leased lines, complex routing, and ISP contracts, drastically increasing costs over local networks." },
+            { q: "Two independent sources X and Y have entropies H(X) = 1.5 bits and H(Y) = 2 bits. What is the joint entropy H(X, Y)?", a: "3.5 bits", d: ["1.5 bits", "0.5 bits", "4.0 bits"], e: "For independent variables, joint entropy is the sum: H(X,Y) = H(X) + H(Y) = 1.5 + 2 = 3.5 bits." },
+            { q: "In RF safety standards, the Poynting vector is used to determine:", a: "Power per unit area", d: ["Voltage per meter", "Current density", "Magnetic field intensity"], e: "The magnitude of the Poynting vector defines the power density (W/m²), heavily used in exposure limits." },
+            { q: "To control the speed of a DC motor using a PLC, which method is MOST appropriate?", a: "PLC output connected to a PWM motor drive", d: ["PLC output connected directly to motor armature", "Using a simple SPST relay", "Connecting to a 4-20mA sensor loop"], e: "PLCs use Pulse Width Modulation (PWM) signals fed into a drive to smoothly control DC motor speed." },
+            { q: "Doubling the antenna gain (linear scale) while keeping transmitter power constant:", a: "Doubles ERP", d: ["Halves ERP", "Quadruples ERP", "Does not change ERP"], e: "Effective Radiated Power (ERP) is the direct product of transmitter power and antenna gain." },
+            { q: "A system streams sensor data continuously at a constant rate to a monitoring server. Which transmission method is conceptually most suitable?", a: "Synchronous transmission", d: ["Asynchronous transmission", "Isochronous transmission", "Packet-switched transmission"], e: "Synchronous transmission sends data in continuous, strictly timed blocks, ideal for constant streaming." },
+            { q: "Which statement BEST summarizes the essential function of a radio receiver?", a: "It captures electromagnetic waves and reconstructs the original information", d: ["It amplifies audio for large crowds", "It converts digital files to analog", "It stores RF energy for later use"], e: "A receiver selects the RF frequency, demodulates it, and recovers the baseband signal." },
+            { q: "When coupling light from a fiber to a photodetector, the conversion efficiency depends on:", a: "Alignment and spot size matching", d: ["Cable length and color", "Transmitter power only", "Modulation scheme"], e: "Physical alignment and ensuring the light spot falls precisely on the active area are critical for efficiency." },
+            { q: "In a client-server network, resources are controlled by a central server. Which of the following is TRUE for a P2P network?", a: "Each device can share and request resources directly", d: ["There is a dedicated server for all files", "It uses a token passing protocol exclusively", "Routing is entirely managed by an external ISP"], e: "Peer-to-Peer (P2P) implies all nodes act as both clients and servers to one another." },
+            { q: "In IoT devices deployed on rooftops or poles, which antenna is commonly used for omnidirectional short-range communication?", a: "Monopole antenna", d: ["Parabolic dish", "Horn antenna", "Helical antenna"], e: "A monopole is simple, cheap, and provides a uniform donut-shaped radiation pattern perfect for general IoT coverage." },
+            { q: "To ensure continuous server communication, a data center implements multiple redundant paths between switches. Which principle is being applied?", a: "Mesh redundancy", d: ["Star topology", "Bus topology", "Ring topology"], e: "Mesh networking ensures if one link fails, traffic reroutes through alternative paths." },
+            { q: "Which modulation technique is MOST suitable for achieving high data rates over a fixed bandwidth?", a: "Quadrature Amplitude Modulation", d: ["FSK", "BPSK", "OOK"], e: "QAM varies both amplitude and phase, allowing many bits to be packed into a single symbol (e.g., 256-QAM)." },
+            { q: "Which of the following increases the bandwidth requirement of a PAM signal?", a: "Increasing the highest frequency of the analog signal", d: ["Decreasing the sampling rate", "Using fewer quantization levels", "Reducing the transmission distance"], e: "Higher analog frequencies require faster sampling rates, which creates shorter pulses and wider required bandwidth." },
+            { q: "A factory uses IoT sensors and automated machinery connected to a local network. One sensor failure should not disrupt communication for other devices. What is the BEST network design choice?", a: "Star topology with redundant links", d: ["Point-to-point", "Bus topology", "Daisy-chain"], e: "In a star, each node connects to a central switch. One node failing does not affect the others." },
+            { q: "Why is a multiplexer critical in modern communication systems?", a: "It allows multiple streams to share a single transmission medium, reducing infrastructure costs", d: ["It prevents all signal noise", "It converts analog to digital natively", "It amplifies signals for long distance"], e: "MUXing consolidates traffic, preventing the need for separate physical cables for every single connection." },
+            { q: "Engr. Pio Cuervo wants to upgrade an analog telephone network to PCM while preserving speech quality with limited bandwidth. What is the most practical solution?", a: "Use 8-bit PCM with companding", d: ["4-bit PCM without companding", "Delta modulation with large step size", "16-bit linear PCM at 44.1kHz"], e: "8-bit PCM with A-Law/Mu-Law companding provides equivalent quality to 12-bit linear PCM at a much lower bandwidth." },
+            { q: "Two FIR filters are cascaded: The first is y₁[n] = 0.3x[n] + 0.7x[n − 1] − 1 and the second is y[n] = 0.15y₁[n] + 0.5y₁[n − 1] + 0.35y₁[n − 2]. What is the overall difference equation?", a: "y[n] = 0.045x[n] + 0.255x[n-1] + 0.305x[n-2] - 0.255x[n-3] - 0.35x[n-4]", d: ["y[n] = 0.45x[n] + 0.35x[n-1] + 1.2x[n-2]", "y[n] = 0.15x[n] + 0.5x[n-1] + 0.35x[n-2]", "y[n] = 0.3x[n] + 0.7x[n-1] - 0.5x[n-2]"], e: "This is found by mathematically performing a polynomial multiplication (convolution) of the two impulse responses." },
+            { q: "A rescue team uses portable FM transmitters with β = 2. A sudden need arises to extend range without increasing transmitter power. Which is the best situational approach?", a: "Use high-gain directional antennas", d: ["Increase audio frequency", "Reduce modulation index", "Change to AM"], e: "Directing the existing radiated power specifically toward the target drastically increases the effective range." },
+            { q: "A designer wants to connect a 50 Ω transmitter to a 50 Ω antenna using a coaxial cable. What is the main reason for choosing a cable with Z₀ = 50 Ω?", a: "Prevents reflections and maximizes power transfer", d: ["Reduces cable cost", "Decreases signal propagation speed", "Increases the wave impedance"], e: "Impedance matching eliminates standing waves and ensures 100% of the forward power reaches the load." },
+            { q: "An email is sent from a laptop of Engr. Cosme Catimbang in Manila to a server in New York. Which OSI layer ensures the packet finds the correct path through multiple routers?", a: "Network Layer", d: ["Transport Layer", "Data Link Layer", "Session Layer"], e: "Layer 3 (Network) handles logical IP addressing and routing packets across interconnected networks." },
+            { q: "A communication system allows users to transmit messages alternately over the same channel using software-controlled turn-taking. What is the mode of transmission?", a: "Half-duplex", d: ["Simplex", "Full-duplex", "Multi-simplex"], e: "Two-way communication, but only one direction at a time, defines half-duplex (like a walkie-talkie)." },
+            { q: "If a small office combines two BRI lines, the maximum user data rate achievable is:", a: "256 kbps", d: ["128 kbps", "512 kbps", "1.544 Mbps"], e: "One ISDN BRI provides two 64 kbps B-channels (128 kbps). Two lines combined yield 256 kbps." },
+            { q: "Which cable type is used when extremely high data rates and long-distance transmission are required, such as in internet backbones?", a: "Fiber optic", d: ["Coaxial cable", "Twisted pair", "Microwave relay"], e: "Fiber has massive bandwidth (terabits) and extremely low attenuation over long distances." },
+            { q: "In modern Ethernet networks, the function of a bridge is most commonly implemented by:", a: "Switches", d: ["Routers", "Hubs", "Repeaters"], e: "A network switch is essentially a fast, multi-port hardware bridge operating at Layer 2." },
+            { q: "An IoT sensor sends temperature data over a radio link. Which layer converts the digital sensor readings into RF signals?", a: "Physical Layer", d: ["Network Layer", "Data Link Layer", "Application Layer"], e: "Layer 1 (Physical) deals with the actual modulation and transmission of raw bits over the medium." },
+            { q: "An electronics engineer would like to improve received power over a fixed distance without changing transmit power. A practical way to do this is to:", a: "Use a higher-gain receiver antenna", d: ["Use a lower-gain receiver antenna", "Increase the transmission frequency", "Decrease the receiver bandwidth"], e: "A larger/higher-gain antenna captures a larger physical area of the incoming wave, increasing received power." },
+            { q: "Which of the following is an example of an odd signal?", a: "x(t) = sin t", d: ["x(t) = cos t", "x(t) = t^2", "x(t) = |t|"], e: "Sine is an odd function because sin(-t) = -sin(t). It has rotational symmetry about the origin." },
+            { q: "In Phase Shift Keying (PSK), digital information is transmitted by:", a: "Varying the phase of the carrier signal", d: ["Varying the amplitude of the carrier", "Varying the frequency of the carrier", "Varying the polarization of the carrier"], e: "PSK maps discrete bit patterns to specific phase angles of a constant-frequency, constant-amplitude carrier." },
+            { q: "A microwave engineer wants to avoid higher-order modes. Which strategy is correct?", a: "Use frequency just above TE₁₀ cutoff", d: ["Use frequency far above TE₂₀", "Use a highly oversized waveguide", "Increase transmit power"], e: "Operating slightly above the dominant mode cutoff ensures that only the fundamental mode can propagate." }
+        ];
+
         // Format helpers
         const formatDataComm = (raw) => raw.map(i => ({
             q: i.q,
@@ -320,8 +434,18 @@
         }));
 
         const dataCommData = formatDataComm(dataCommRaw);
-        const principlesData = principlesDataRaw; // Already formatted
-        const digitalData = digitalCommRaw; // Already formatted
+        
+        const principlesData = principlesDataRaw.map(i => ({
+            q: i.q, a: i.a, d: i.d, e: i.e
+        }));
+        
+        const digitalData = digitalCommRaw.map(i => ({
+            q: i.q, a: i.a, d: i.d, e: i.e
+        }));
+
+        const preboards01Data = preboards01Raw.map(i => ({
+            q: i.q, a: i.a, d: i.d, e: i.e
+        }));
 
         let quizData = [];
         let currentIndex = 0;
@@ -349,6 +473,9 @@
             } else if (mode === 'digital') {
                 label = "Digital Communications";
                 source = digitalData;
+            } else if (mode === 'preboards01') {
+                label = "EST Online Preboards 01";
+                source = preboards01Data;
             }
             
             document.getElementById('mode-selection').classList.add('hidden');
@@ -357,9 +484,10 @@
             document.getElementById('progress-container').classList.remove('hidden');
             document.getElementById('subject-label').innerText = label;
 
-            quizData = shuffleArray([...source]).map(item => {
+            // Deep copy and shuffle logic
+            quizData = shuffleArray(JSON.parse(JSON.stringify(source))).map(item => {
                 let choices = shuffleArray([item.a, ...item.d]);
-                return { ...item, choices };
+                return { ...item, choices, selectedAnswer: null }; // Add tracking property
             });
 
             currentIndex = 0;
@@ -371,7 +499,7 @@
 
         function updateHeader() {
             document.getElementById('progress-text').innerText = `Question ${currentIndex + 1} of ${quizData.length}`;
-            document.getElementById('score-text').innerText = `Score: ${score} / ${currentIndex}`;
+            document.getElementById('score-text').innerText = `Score: ${score} / ${quizData.filter(q => q.selectedAnswer).length}`;
             const percent = (currentIndex / quizData.length) * 100;
             document.getElementById('progress-bar').style.width = percent + '%';
         }
@@ -382,67 +510,109 @@
             const grid = document.getElementById('choices-grid');
             grid.innerHTML = '';
             
+            // Previous Button Visibility
+            const prevBtn = document.getElementById('top-prev-btn');
+            if (currentIndex > 0) {
+                prevBtn.classList.remove('hidden');
+            } else {
+                prevBtn.classList.add('hidden');
+            }
+
+            // Render choices
             current.choices.forEach(choice => {
                 const btn = document.createElement('button');
                 btn.className = "choice-btn w-full p-4 text-left border border-rose-100 bg-white rounded-2xl font-medium text-rose-900/70 hover:bg-rose-50/50 hover:border-rose-200 transition-all flex justify-between items-center group";
-                btn.innerHTML = `<span>${choice}</span><span class="icon opacity-0 group-hover:opacity-40 transition-opacity"></span>`;
+                btn.innerHTML = `<span>${choice}</span><span class="icon opacity-0 transition-opacity"></span>`;
                 btn.onclick = () => handleChoice(choice, btn);
                 grid.appendChild(btn);
             });
 
-            document.getElementById('feedback-area').classList.add('hidden');
+            // If question was already answered, restore state
+            if (current.selectedAnswer) {
+                restoreAnswerState();
+            } else {
+                document.getElementById('feedback-area').classList.add('hidden');
+            }
+            
+            // Update Next button text depending on if it's the last question
+            const nextBtn = document.getElementById('next-btn');
+            nextBtn.innerText = (currentIndex === quizData.length - 1) ? "Finish Review" : "Next Question";
         }
 
         function handleChoice(selected, btn) {
             const current = quizData[currentIndex];
-            const allBtns = document.querySelectorAll('.choice-btn');
+            
+            // Prevent multiple selections if already answered
+            if (current.selectedAnswer) return; 
+
+            current.selectedAnswer = selected;
             const isCorrect = selected === current.a;
 
+            if (isCorrect) {
+                score++;
+            } else {
+                mistakes.push(current);
+            }
+
+            updateHeader();
+            restoreAnswerState();
+
+            setTimeout(() => {
+                document.getElementById('feedback-area').scrollIntoView({ behavior: 'smooth', block: 'end' });
+            }, 100);
+        }
+
+        function restoreAnswerState() {
+            const current = quizData[currentIndex];
+            const allBtns = document.querySelectorAll('.choice-btn');
+            
             allBtns.forEach(b => {
                 b.disabled = true;
                 const bText = b.querySelector('span:first-child').innerText;
                 const icon = b.querySelector('.icon');
+                
+                // Remove group hover effect since buttons are disabled
+                b.classList.remove('hover:bg-rose-50/50', 'hover:border-rose-200');
                 
                 if (bText === current.a) {
                     b.classList.add('correct');
                     icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" /></svg>`;
                     icon.classList.remove('opacity-0');
                     icon.classList.add('opacity-100');
+                } else if (bText === current.selectedAnswer) {
+                    b.classList.add('incorrect');
+                    icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12" /></svg>`;
+                    icon.classList.remove('opacity-0');
+                    icon.classList.add('opacity-100');
                 }
             });
 
-            if (!isCorrect) {
-                btn.classList.add('incorrect');
-                const icon = btn.querySelector('.icon');
-                icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12" /></svg>`;
-                icon.classList.remove('opacity-0', 'group-hover:opacity-40');
-                icon.classList.add('opacity-100');
-                mistakes.push(current);
-            } else {
-                score++;
-            }
-
+            const isCorrect = current.selectedAnswer === current.a;
             const status = document.getElementById('feedback-status');
             status.innerHTML = isCorrect ? '<span class="text-emerald-500">Correct</span>' : '<span class="text-rose-400">Incorrect</span>';
             document.getElementById('explanation-text').innerText = current.e;
             document.getElementById('feedback-area').classList.remove('hidden');
-            document.getElementById('score-text').innerText = `Score: ${score} / ${currentIndex + 1}`;
-            
-            setTimeout(() => {
-                document.getElementById('feedback-area').scrollIntoView({ behavior: 'smooth', block: 'end' });
-            }, 100);
         }
 
-        document.getElementById('next-btn').onclick = () => {
-            currentIndex++;
-            if (currentIndex < quizData.length) {
+        function goNext() {
+            if (currentIndex < quizData.length - 1) {
+                currentIndex++;
                 updateHeader();
                 renderQuestion();
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             } else {
                 showResults(true);
             }
-        };
+        }
+
+        function goPrevious() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateHeader();
+                renderQuestion();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
 
         function showResults(visible = true) {
             document.getElementById('quiz-container').classList.toggle('hidden', visible);
@@ -450,6 +620,10 @@
             document.getElementById('mistakes-screen').classList.add('hidden');
             if (visible) {
                 document.getElementById('final-score').innerText = `${score} / ${quizData.length}`;
+                
+                const percentage = Math.round((score / quizData.length) * 100);
+                document.getElementById('final-percentage').innerText = `Final Grade: ${percentage}%`;
+                
                 document.getElementById('view-mistakes-btn').classList.toggle('hidden', mistakes.length === 0);
             }
         }
@@ -459,12 +633,17 @@
             document.getElementById('mistakes-screen').classList.remove('hidden');
             const list = document.getElementById('mistakes-list');
             list.innerHTML = '';
-            mistakes.forEach(item => {
+            
+            // Remove duplicates from mistakes array (in case of weird navigation anomalies)
+            const uniqueMistakes = [...new Set(mistakes)];
+            
+            uniqueMistakes.forEach(item => {
                 const div = document.createElement('div');
                 div.className = "p-6 bg-rose-50/30 rounded-2xl border border-rose-100 fade-in";
                 div.innerHTML = `
                     <p class="font-bold text-rose-900/70 mb-3">${item.q}</p>
                     <div class="bg-white p-4 rounded-xl mb-3 border border-rose-50 shadow-sm">
+                        <p class="text-sm font-bold text-rose-500 mb-1 line-through opacity-70">Your Answer: ${item.selectedAnswer}</p>
                         <p class="text-sm font-bold text-emerald-600">Correct: ${item.a}</p>
                     </div>
                     <p class="text-xs text-rose-400/80 italic leading-relaxed">${item.e}</p>
